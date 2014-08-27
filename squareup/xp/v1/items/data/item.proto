@@ -123,7 +123,7 @@ message Item {
   optional bool available_online = 8 [default = false];
 
   /** Not used */
-  optional bool available_for_pickup = 9 [default = false];
+  optional bool available_for_pickup = 9 [default = false, deprecated = true];
 
   /** The ID of the item's category, if any. */
   optional string category_id = 10;
