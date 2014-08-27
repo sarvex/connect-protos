@@ -1,0 +1,146 @@
+package squareup.xp.v1.data;
+
+option java_package = "com.squareup.protos.xp.v1.data";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "squareup/xp/v1/common.proto";
+import "squareup/xp/v1/data/payments.proto";
+import "public/money.proto";
+import "public/international/currency.proto";
+
+/** Represents a Square Market order that has been placed against the merchant. */
+message Order {
+
+  /** The current state of a Square Market order. */
+  enum State {
+    /** The order has been created and is awaiting validation from Square. */
+    PENDING = 1;
+
+    /** The order has been validated and is ready to be completed by the merchant. */
+    OPEN = 2;
+
+    /** The merchant shipped or otherwise fulfilled the order. */
+    COMPLETED = 3;
+
+    /** The merchant canceled the order or didn't act on it within a required time period. */
+    CANCELED = 4;
+
+    /** The merchant refunded a previously COMPLETED order. */
+    REFUNDED = 5;
+
+    /** The order cannot be processed because it was rejected by Square, or because it has been too long since the order was created */
+    REJECTED = 6;
+  }
+
+  /** The order's unique identifier. */
+  optional string id = 1;
+
+  /** The order's current state, such as OPEN or COMPLETED. */
+  optional State state = 2;
+
+  /** The Square merchant id */
+  optional string merchant_token = 3;
+
+  /** The tracking number of the shipment */
+  optional string shipped_tracking_number = 4;
+
+  /** The email address of the order's buyer. */
+  optional string buyer_email = 5;
+
+  /** The name of the order's buyer. */
+  optional string recipient_name = 6;
+
+  /** The phone number to use for the order's delivery. */
+  optional string recipient_phone_number = 7;
+
+  /** The amount of all items purchased in the order, before taxes and shipping. */
+  optional public.Money subtotal_money = 8;
+
+  /** The shipping cost for the order. */
+  optional public.Money total_shipping_money = 9;
+
+  /** The total of all taxes applied to the order. */
+  optional public.Money total_tax_money = 10;
+
+  /** The total cost of the order. */
+  optional public.Money total_price_money = 11;
+
+  /** The time when the order was created, in ISO 8601 format. */
+  optional string created_at   = 12; // iso8601
+
+  /** The time when the order was last modified, in ISO 8601 format. */
+  optional string updated_at   = 13; // iso8601
+
+  /** The address to ship the order to. */
+  optional GlobalAddress shipping_address = 14;
+
+  /** The unique identifier of the payment associated with the order. */
+  optional string payment_id = 15;
+
+  /** A note provided by the buyer when the order was created, if any. */
+  optional string buyer_note = 16;
+
+  /** A note provided by the merchant when the order's state was set to COMPLETED, if any. */
+  optional string completed_note = 17;
+
+  /** A note provided by the merchant when the order's state was set to REFUNDED, if any. */
+  optional string refunded_note = 18;
+
+  /** A note provided by the merchant when the order's state was set to CANCELED, if any. */
+  optional string canceled_note = 19;
+
+  /** The tender used to pay for the order. */
+  optional Tender tender = 20;
+
+  /** The history of actions associated with the order. */
+  repeated OrderHistoryEntry order_history = 21;
+
+  /** The total of all discounts applied to the order. */
+  optional public.Money total_discount_money = 22;
+
+  /**
+   * This is the address the buyer should deposit BTC into in order to finish their BTC orders.
+   */
+  optional string btc_receive_address = 24;
+
+  /**
+   * This is the price of the buyers order in satoshi. 1 BTC = 100,000,000 Satoshis.
+   */
+  optional int64 btc_price_satoshi = 25;
+
+  /**
+   * This is the time that the order will expire,
+   * if the merchant takes no action before then.
+   */
+  optional string expires_at   = 26; // iso8601
+}
+
+
+/** Represents a prior action performed on a Square Market order. */
+message OrderHistoryEntry {
+  
+  /** The type of action previously performed on a Square Market order. */
+  enum ActionType {
+    /** The order expired. */
+    EXPIRED = 1;
+    /** The order was rejected by Square. */
+    DECLINED = 2;
+    /** The order's associated payment was processed. */
+    PAYMENT_RECEIVED = 3;
+    /** The buyer initiated the order. */
+    ORDER_PLACED = 4;
+    /** The merchant shipped or otherwise fulfilled the order. */
+    COMPLETED = 5;
+    /** The merchant refunded the order. */
+    REFUNDED = 6;
+    /** The merchant canceled the order. */
+    CANCELED = 7;
+  };
+
+  /** The type of action performed on the order. */
+  optional ActionType action = 1;
+
+  /** The time when the action was performed, in ISO 8601 format. */
+  optional string created_at = 2; // iso8601
+}

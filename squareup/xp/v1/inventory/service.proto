@@ -1,0 +1,134 @@
+package squareup.xp.v1.inventory;
+
+option java_package = "com.squareup.protos.xp.v1.inventory";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "fender/v1.proto";
+import "fender/v1/field_options.proto";
+import "squareup/xp/v1/common.proto";
+
+// Copied from squareup.inventory.
+/**
+ * Indicates the reason for adjusting an item variation's inventory information.
+ */
+enum InventoryAdjustmentType {
+  /**
+   * The available quantity is being reduced due to a sale.
+   */
+  SALE = 1;
+
+  /**
+   * The available quanitity is being increased due to an increase in stock.
+   */
+  RECEIVE_STOCK = 3;
+
+  /**
+   * The available quantity is being adjusted manually due to an updated stock count or other discrepancy.
+   */
+  MANUAL_ADJUST = 4;
+
+  /// TODO: Are the following internal?
+  /**
+   * This is when a sales order is created. When it is finalized, it will use
+   * the adjustment type, "SALE"
+   */
+  SALES_ORDER_CREATE = 5;
+
+  /** When a sales order is finalized in a CANCELED state */
+  SALES_ORDER_CANCEL = 6;
+
+  /** When a sales order is completed */
+  SALES_ORDER_COMPLETE = 7;
+}
+
+/**
+ * Represents inventory information for one of a merchant's item variations.
+ */
+message Inventory {
+  /** The variation that the entry corresponds to. */
+  optional string variation_id = 1 [(fender.v1.fender_field).present = true];
+
+  /** The current available quantity of the item variation. */
+  optional int64 quantity_on_hand = 2 [(fender.v1.fender_field).present = true];
+}
+
+
+/** 
+ * Provides inventory information for all of a merchant's inventory-enabled item variations.
+ *
+ * Required permissions: ITEMS\_READ
+ */
+message ListInventoryRequest {
+  /** The Square merchant id */
+  optional string merchant_id = 1 [(fender.v1.fender_field).present = true];
+}
+
+message ListInventoryResponse {
+  /** The variation inventory Objects */
+  repeated Inventory inventories = 1;
+}
+
+/**
+ * Adjusts an item variation's current available inventory.
+ *
+ * See Managing inventory to learn how to enable an item variation for inventory tracking.
+ */
+message CreateInventoryAdjustmentRequest {
+  /** The Square merchant id */
+  optional string merchant_id = 1 [(fender.v1.fender_field).present = true];
+
+
+  /** The Square variation id to make the adjustment to */
+  optional string variation_id = 2 [(fender.v1.fender_field).present = true];
+
+  /**
+   * The number to adjust the variation's quantity by.
+   *
+   * This value must be negative if adjustment_type is SALE, and it must be positive if adjustment_type is RECEIVE_STOCK.
+   */
+  optional int64 quantity_delta = 3 [(fender.v1.fender_field).present = true];
+
+  /** The reason for the inventory adjustment. */
+  optional InventoryAdjustmentType adjustment_type = 4 [(fender.v1.fender_field).present = true];
+
+  /** A note about the inventory adjustment. */
+  optional string memo = 5;
+}
+
+// Exposes the Inventory service via a REST compatible API
+service XpInventoryService {
+  option (fender.v1.fender_service) = {
+    address: "https://connect.squareup.com",
+    transport: HTTPS,
+    request_format: JSON
+  };
+
+  /**
+   * Provides inventory information for all of a merchant's inventory-enabled item variations.
+   *
+   * See Managing inventory on https://connect.squareup.com/docs/api#managinginventory to learn how to enable an item variation for inventory tracking.
+   */
+  rpc ListInventory (ListInventoryRequest) returns (ListInventoryResponse) {
+    option (squareup.xp.v1.permission) = ITEMS_READ;
+    option (fender.v1.fender_method) = {
+      http_method: GET,
+      http_path: "/v1/{+merchant_id}/inventory",
+      response_body_field: { name: "inventories" }
+    };
+  }
+
+  /**
+   * Adjusts an item variation's current available inventory.
+   *
+   * See Managing inventory on https://connect.squareup.com/docs/api#managinginventory to learn how to enable an item variation for inventory tracking.
+   */
+  rpc CreateInventoryAdjustment (CreateInventoryAdjustmentRequest) returns (Inventory) {
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: POST,
+      http_path: "/v1/{+merchant_id}/inventory/{+variation_id}",
+      response_body_field: { name: "inventory" }
+    };
+  }
+}

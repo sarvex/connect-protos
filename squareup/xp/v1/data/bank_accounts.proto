@@ -1,0 +1,44 @@
+package squareup.xp.v1.data;
+
+option java_package = "com.squareup.protos.xp.v1.data";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "public/international/currency.proto";
+
+/** Represents a merchant's bank account. */
+message BankAccount {
+  /** A bank account's type (savings, checking, and so on). */
+  enum AccountType {
+    CHECKING          = 1;
+    BUSINESS_CHECKING = 2;
+    SAVINGS           = 3;
+    LOAN              = 4;
+    INVESTMENT        = 5;
+    OTHER             = 100;
+  }
+
+  /** The bank account's Square-issued ID. */
+  optional string id = 1;
+
+  /** The Square-issued ID of the merchant associated with the bank account. */
+  optional string      merchant_id           = 2;
+
+  /** The name of the bank that manages the account. */
+  optional string      bank_name             = 3;
+
+  /** The name associated with the bank account. */
+  optional string      name                  = 4;
+
+  /** The bank account's type (for example, savings or checking). */
+  optional AccountType type                  = 5;
+
+  /** The bank account's routing number. */
+  optional string      routing_number        = 6;
+
+  /** The last few digits of the bank account number. */
+  optional string      account_number_suffix = 7;
+
+  /** The currency code of the currency associated with the bank account. The currency code for US dollars is USD. */
+  optional public.international.CurrencyCode currency_code = 8;
+}

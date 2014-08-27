@@ -1,0 +1,23 @@
+package squareup.xp.v1.items.data;
+
+option java_package = "com.squareup.protos.xp.v1.items.data";
+option java_generic_services = true;
+option java_outer_classname = "ItemPlaceholders";
+
+import "fender/v1/field_options.proto";
+
+/** The placeholder is simply a button on the iPad client that hints to the client that they should show a list of the type */
+message Placeholder {
+  enum PlaceholderType {
+    UNKNOWN = 0;
+    DISCOUNTS_CATEGORY = 1;
+    REWARDS_FINDER = 2;
+    ALL_ITEMS = 3;
+    COUNT = 4;
+  }
+
+  optional string id = 1 [(fender.v1.fender_field).present = true];
+  optional PlaceholderType placeholder_type = 2;
+  optional string name = 3; /** unused defaults to a string version of the placeholder type*/
+}
+

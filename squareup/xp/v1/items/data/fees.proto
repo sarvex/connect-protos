@@ -1,0 +1,92 @@
+package squareup.xp.v1.items.data;
+
+option java_package = "com.squareup.protos.xp.v1.items.data";
+option java_generic_services = true;
+option java_outer_classname = "ItemFees";
+
+import "fender/v1/field_options.proto";
+import "public/money.proto";
+
+/** Represents a tax or other fee that can be applied to a payment. */
+message Fee {
+  /**
+   * Indicates whether a fee applied to an item is additive or inclusive.
+   *
+   * Additive fees are added on top of the price of items they're applied to.
+   * If an additive 10% fee is applied to a $100 item, the total is $110.
+   * Inclusive fees are assumed to already be included in the price of the items they apply to.
+   * If an inclusive 10% fee is applied to a $100 item, the total is $100, and the actual base cost of the item is assumed to be $90.91.
+   * This affects the amount of any additive fees that are also applied to the item.
+   */
+  enum InclusionType {
+    /** The fee is an additive fee. */
+    ADDITIVE = 0;
+    /** The fee is an inclusive fee. */
+    INCLUSIVE = 1;
+  }
+
+  /** Indicates whether a fee is calculated based on a payment's subtotal or total. */
+  enum CalculationPhase {
+    /** The fee is calculated based on the payment's subtotal. */
+    FEE_SUBTOTAL_PHASE = 2;
+
+    /** The fee is calculated based on the payment's total. */
+    FEE_TOTAL_PHASE = 3;
+  }
+
+  /** Indicates the type of adjustment a fee applies to a payment. Currently, this value is TAX for all fees. */
+  enum AdjustmentType {
+    /** The fee is a tax */
+    TAX = 0;
+  }
+
+  /** Indicates which sales tax classification the fee falls under. Currently relevant only to Canadian merchants. */
+  enum Type {
+    /** The fee is a US sales tax. All fees created by US merchants have this type. */
+    US_SALES_TAX = 1;
+    /** Canadian Goods and Services Tax (GST) */
+    CA_GST = 2;
+    /** Canadian Provincial Sales Taxes (PST) */
+    CA_PST = 3;
+    /** Canadian Harmonized Sales Tax (HST) */
+    CA_HST = 4;
+    /** Canadian Quebec Sales Tax (QST) */
+    CA_QST = 5;
+    /** Canadian Prince Edward Island Provincial Sales Taxes */
+    CA_PEI_PST = 6;
+    /** Japan Consumption Tax */
+    JP_CONSUMPTION_TAX = 7;
+    /** Unknown/other */
+    OTHER = 100;
+  }
+
+
+  /** The fee's unique ID. */
+  optional string id = 1;
+
+  /** The fee's name. */
+  optional string name = 2 [(fender.v1.fender_field).max_length = 255];
+
+  /**
+   * The rate of the fee, as a string representation of a decimal number. A value of 0.07 corresponds to a rate of 7%.
+   */
+  optional string rate = 3;
+
+  optional public.Money amount_money = 4 [ deprecated = true ];
+
+  /** Forthcoming. */
+  optional CalculationPhase calculation_phase = 5 [default = FEE_SUBTOTAL_PHASE];
+
+  /**
+   * The type of adjustment the fee applies to a payment. Currently, this value is TAX for all fees.
+   */
+  optional AdjustmentType adjustment_type = 8 [default = TAX];
+
+  optional bool applies_to_custom_amounts = 9 [default = true];
+  optional bool enabled = 10 [default = true];
+
+  optional InclusionType inclusion_type = 11 [default = ADDITIVE];
+
+  /** Fee type, mapped from the cogs object field fee_type_id */
+  optional Type type = 12;
+}

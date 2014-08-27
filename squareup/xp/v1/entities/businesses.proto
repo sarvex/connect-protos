@@ -1,0 +1,22 @@
+package squareup.xp.v1.entities;
+
+option java_package = "com.squareup.protos.xp.v1.entities";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "squareup/xp/v1/common.proto";
+import "squareup/xp/v1/data/users.proto";
+
+/**
+ * Provides details for the business account that manages a single-location account, if any.
+ * See Multi-Location Overview for more information.
+ *
+ * Requests to this endpoint must use a merchant_id associated with a single-location account.
+ */
+message ShowBusinessRequest {
+  /**
+   * The merchant id to show the business for
+   */
+  optional string merchant_id    = 1;
+}
+

@@ -1,0 +1,101 @@
+package squareup.xp.v1.items.data;
+
+option java_package = "com.squareup.protos.xp.v1.items.data";
+option java_generic_services = true;
+option java_outer_classname = "ItemPages";
+
+import "fender/v1/field_options.proto";
+import "squareup/xp/v1/items/data/placeholder.proto";
+
+/** Represents a Favorites page in the iPad version of Square Register. */
+message Page {
+  /** The page's unique identifier. */
+  optional string id = 1 [(fender.v1.fender_field).present = true];
+
+  /** The page's name, if any. */
+  optional string name = 2 [(fender.v1.fender_field).max_length = 255];
+
+  /** The page's position in the merchant's list of pages. Always an integer between 0 and 4, inclusive. */
+  optional int32 page_index = 3 [(fender.v1.fender_field) = { max: 4, min: 0 }];
+
+  /** The cells included on the page. */
+  repeated PageCell cells = 4;
+}
+
+/** Represents membership on a page */
+message ItemPageMembership {
+  /** The type of entity represented in the cell */
+  enum PolymorphicType {
+    /** An item. */
+    ITEM = 1;
+    /** A discount. */
+    DISCOUNT = 2;
+    /** A category. */
+    CATEGORY = 3;
+    /** The cell provides lookup for entities of a particular type. */
+    LOOKUP = 4;
+  }
+
+  optional string id = 1 [(fender.v1.fender_field).present = true];
+
+  /** The row of the cell. Always an integer between 0 and 4, inclusive. */
+  optional int32 row = 2 [(fender.v1.fender_field) = { max: 4, min: 0 }];
+
+  /** The column of the cell. Always an integer between 0 and 4, inclusive. */
+  optional int32 column = 3 [(fender.v1.fender_field) = { max: 4, min: 0 }];
+
+  /** The unique identifier of the page the cell is included on. */
+  optional string page_id = 4 [(fender.v1.fender_field).present = true];
+
+  optional PolymorphicType object_type = 5;
+  optional string object_id = 6;
+}
+
+/** Represents a cell of a Page. */
+message PageCell {
+  /** The type of entity represented in the cell */
+  enum Type {
+    /** An item. */
+    ITEM = 1;
+    /** A discount. */
+    DISCOUNT = 2;
+    /** A category. */
+    CATEGORY = 3;
+    /** The cell provides lookup for entities of a particular type. */
+    LOOKUP = 4;
+  }
+
+  /** Indicates the behavior of a page cell with an object_type of LOOKUP. */
+  enum LookupType {
+    UNKNOWN = 0;
+
+    /** The cell presents a list of all the merchant's discounts. The cell is labeled Discounts. */
+    ALL_DISCOUNTS = 1;
+
+    /** The cell presents a view for selecting customer rewards. The cell is labeled Rewards. */
+    REWARDS_FINDER = 2;
+    /** The cell presents a list of all the merchant's items. The cell is labeled All Items. */
+    ALL_ITEMS = 3;
+
+    /** Deprecated */
+    COUNT = 4;
+  }
+
+  /** The unique identifier of the page the cell is included on. */
+  optional string page_id = 1;
+
+  /** The row of the cell. Always an integer between 0 and 4, inclusive. */
+  optional int32 row = 2 [(fender.v1.fender_field) = { max: 4, min: 0 }];
+
+  /** The column of the cell. Always an integer between 0 and 4, inclusive. */
+  optional int32 column = 3 [(fender.v1.fender_field) = { max: 4, min: 0 }];
+
+  /** The type of entity represented in the cell */
+  optional ItemPageMembership.PolymorphicType object_type = 4;
+
+  /** The unique identifier of the entity represented in the cell. Not present for cells with an object_type of LOOKUP. */
+  optional string object_id = 5;
+
+  // If the object_type is PLACEHOLDER then placeholder_type is present
+  optional Placeholder.PlaceholderType placeholder_type = 6;
+}

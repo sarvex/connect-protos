@@ -1,0 +1,95 @@
+package squareup.xp.v1.reporting;
+
+option java_package = "com.squareup.protos.xp.v1.reporting";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "fender/v1/field_options.proto";
+import "squareup/xp/v1/common.proto";
+import "squareup/xp/v1/data/payments.proto";
+
+/**
+ * Provides the details for all refunds initiated by a merchant or any of the merchant's mobile staff during a date range.
+ * Date ranges cannot exceed one year in length.
+ * See Date ranges in Square documentation at https://connect.squareup.com/docs/api for details of inclusive and exclusive dates
+ *
+ * Required permissions: PAYMENTS\_READ
+ */
+message RefundsRequest {
+  /** The Square merchant_id */
+  optional string merchant_id    = 1;
+
+  /**
+   * Start of the time window to query for
+   * ISO 8601 format
+   *
+   * Default: Current time - 1 year
+   */
+  optional string begin_time     = 2; // iso8601
+
+  /**
+   * End of the time window to query for
+   * ISO 8601 format
+   *
+   * Note: Time windows must be less than 1 year
+   *
+   * Default: Current time
+   */
+  optional string end_time       = 3; // iso8601
+
+
+  /**
+   * Set this to the value of the batch token
+   * And repeat the request to fetch the next page
+   */
+  optional string batch_token    = 4;
+
+
+  /**
+   * Sort order as applied to refund time
+   */
+  optional SortOrder order       = 5 [ default = ASC ];
+
+  /**
+   * The limit of total results for the query
+   */
+  optional uint32 limit          = 6 [
+    default = 100,
+    (fender.v1.fender_field) = { min: 1, max: 200 }
+  ];
+}
+
+message RefundsResponse {
+  /**
+   * The returned refund detail
+   */
+  repeated data.Refund refunds = 1;
+
+  /**
+   * Present if there are more results on the server.
+   * Set this value into the original request 'batch_token' field and repeat the query
+   */
+  optional string batch_token = 3;
+}
+
+/**
+ * Issues a refund for a previously processed payment.
+ * You must issue a refund within 60 days of the associated payment.
+ * See the article at https://squareup.com/help/article/5060 for more information on refund behavior.
+ *
+ * Issuing a refund for a card payment is not reversible.
+ * To develop against this endpoint, you can create fake cash payments in Square Register and refund them.
+ *
+ * You can issue either full refunds or partial refunds.
+ * If you issue a partial refund, you must specify the amount of money to refund.
+ *
+ * Required permissions: PAYMENTS\_WRITE
+ */
+message RefundCreateRequest {
+  /** The refund to create */
+  optional data.Refund refund = 1;
+
+  /** The merchant id for the merchant owning the refund */
+  optional string merchant_id = 2;
+}
+

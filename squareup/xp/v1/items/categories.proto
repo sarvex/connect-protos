@@ -1,0 +1,96 @@
+package squareup.xp.v1.items;
+
+option java_package = "com.squareup.protos.xp.v1.items";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "fender/v1/field_options.proto";
+import "squareup/xp/v1/items/data/category.proto";
+import "squareup/xp/v1/common.proto";
+
+/** 
+ * Creates an item category.
+ *
+ * To add or remove an item from a category, use the Update Item endpoint.
+*/
+message CategoryCreateRequest {
+  /** 
+   * Your Square-issued ID, if you've obtained it from another endpoint.
+   *
+   * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
+  */
+  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+
+  /** The category's name. */
+  optional string name = 2 [(fender.v1.fender_field).present = true];
+}
+
+/** Lists all of a merchant's item categories. */
+message CategoryListRequest {
+  /** 
+   * Your Square-issued ID, if you've obtained it from another endpoint.
+   *
+   * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
+   */
+  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+}
+
+message CategoryListResponse {
+  /** An array of zero or more Category objects. */
+  repeated data.Category categories = 1;
+}
+
+/** 
+ * Modifies the details of an existing item category.
+ *
+ * To add or remove an item from a category, use the Update Item endpoint.
+ *
+ * Required permissions: ITEMS\_WRITE
+ */
+message CategoryUpdateRequest {
+  /** 
+   * Your Square-issued ID, if you've obtained it from another endpoint.
+   *
+   * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
+   */
+  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+
+
+  /** The category to update */
+  optional data.Category category = 2 [(fender.v1.fender_field).present = true];
+}
+
+/** 
+ * Deletes an existing item category.
+ *
+ * Required permissions: ITEMS\_WRITE
+ */
+message CategoryDeleteRequest {
+  /**
+   * Your Square-issued ID, if you've obtained it from another endpoint.
+   *
+   * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
+  */
+  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+
+  /** The ID of the category to delete. */
+  optional string category_id = 2 [(fender.v1.fender_field).present = true];
+}
+
+/**
+ * Create or update a batch of categories
+ *
+ * Required permissions: ITEM\_WRITE
+ */
+message CategoryBatchUpdateRequest {
+  /**
+   * Your Square-issued ID, if you've obtained it from another endpoint.
+   *
+   * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
+  */
+  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  /**
+   * The categories to create or update
+   */
+  repeated data.Category categories = 2;
+}

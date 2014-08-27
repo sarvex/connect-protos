@@ -1,0 +1,66 @@
+package squareup.xp.v1.items;
+
+option java_package = "com.squareup.protos.xp.v1.items";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "fender/v1/field_options.proto";
+import "squareup/xp/v1/items/data/variation.proto";
+import "squareup/xp/v1/common.proto";
+
+/**
+ * Creates an item variation for an existing item.
+ *
+ * Required permissions: ITEMS\_WRITE
+ */
+message VariationCreateRequest {
+  /**
+   * Your Square-issued ID, if you've obtained it from another endpoint.
+   *
+   * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
+   */
+  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+
+  /** The variation to create */
+  optional data.Variation variation = 3 [(fender.v1.fender_field).present = true];
+}
+
+/**
+ * Modifies the details of an existing item variation.
+ *
+ * Required permissions: ITEMS\_WRITE
+ */
+message VariationUpdateRequest {
+  /**
+   * Your Square-issued ID, if you've obtained it from another endpoint.
+   *
+   * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
+   */
+  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+
+  /** The variation to update */
+  optional data.Variation variation = 2;
+}
+
+/**
+ * Deletes an existing item variation from an item.
+ *
+ * Every item must have at least one varation. This endpoint returns an error if you attempt to delete an item's only variation.
+ *
+ * Required permissions: ITEMS\_WRITE
+ */
+message VariationDeleteRequest {
+  /**
+   * Your Square-issued ID, if you've obtained it from another endpoint.
+   *
+   * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
+   *
+   */
+  optional string catalog_id = 1;
+
+  /** The ID of the item the variation applies to. */
+  optional string item_id = 2;
+
+  /** The ID of the variation to delete. */
+  optional string variation_id = 3;
+}

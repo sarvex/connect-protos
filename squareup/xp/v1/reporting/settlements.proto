@@ -1,0 +1,107 @@
+package squareup.xp.v1.reporting;
+
+option java_package = "com.squareup.protos.xp.v1.reporting";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "fender/v1/field_options.proto";
+import "squareup/xp/v1/common.proto";
+import "squareup/xp/v1/data/settlements.proto";
+
+/**
+ * Provides summary information for all deposits and withdrawals initiated by Square to a merchant's bank account during a date range.
+ * Date ranges cannot exceed one year in length. See Date ranges for details of inclusive and exclusive dates.
+ *
+ * Settlement objects returned by this endpoint do not include the entries field, which lists the transactions that contribute to the total of the settlement.
+ * To get a particular settlement's entries, use the Retrieve Settlement endpoint.
+ *
+ * Square initiates its regular deposits to merchant bank accounts on the schedule indicated on this page.
+ * A deposit initiated by Square on a given day is usually not provided by this endpoint before 10 p.m. PST the same day.
+ *
+ * Square does not know when an initiated settlement completes, only whether it has failed.
+ * A completed settlement is typically reflected in a merchant's bank account within three business days, but in exceptional cases it might take longer.
+ *
+ * Required permissions: SETTLEMENTS\_READ
+ */
+message SettlementsRequest {
+  /** The Square merchant id */
+  optional string merchant_id = 1;
+
+  /**
+   * Start of the time window to query for
+   * ISO 8601 format
+   *
+   * Default: Current time - 1 year
+   */
+  optional string begin_time  = 2; //iso8601
+
+  /**
+   * End of the time window to query for
+   * ISO 8601 format
+   *
+   * Note: Time windows must be less than 1 year
+   *
+   * Default: Current time
+   */
+  optional string end_time    = 3; //iso8601
+
+  /**
+   * Sort order as applied to settlement time
+   */
+  optional SortOrder order = 4;
+
+  /**
+   * Provide this parameter to retrieve only settlements with a particular status
+   */
+  optional data.Settlement.Status status = 5;
+
+  /**
+   * The limit of total results for the query
+   */
+  optional uint32 limit = 6 [
+    default = 100,
+    (fender.v1.fender_field) = { max: 200, min: 1 }
+  ];
+
+  /**
+   * Set this to the value of the batch token
+   * And repeat the request to fetch the next page
+   */
+  optional string batch_token = 99;
+}
+
+message SettlementsResponse {
+  /** Detailed settlement information */
+  repeated data.Settlement settlements = 1;
+
+  /**
+   * Present if there are more results on the server.
+   * Set this value into the original request 'batch_token' field and repeat the query
+   */
+  optional string  batch_token   = 5;
+}
+
+message SummarySettlementsResponse {
+  /** A lite version of the settlement data */
+  repeated data.Settlement settlements = 1;
+
+  /**
+   * Present if there are more results on the server.
+   * Set this value into the original request 'batch_token' field and repeat the query
+   */
+  optional string  batch_token   = 5;
+}
+
+/**
+ * Provides comprehensive information for a single settlement, including the entries that contribute to the settlement's total.
+ *
+ * Required permissions: SETTLEMENTS\_READ
+ */
+message SettlementRequest {
+  /** The Square merchant id */
+  optional string merchant_id = 1 [ (fender.v1.fender_field).present = true];
+
+  /** The Square settlement id */
+  optional string settlement_id = 2 [ (fender.v1.fender_field).present = true ];
+}
+

@@ -1,0 +1,25 @@
+package squareup.xp.v1.entities;
+
+option java_package = "com.squareup.protos.xp.v1.entities";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "squareup/xp/v1/common.proto";
+import "squareup/xp/v1/data/users.proto";
+
+/**
+ * Provides details for a business account's locations. See Multi-Location Overview for more information.
+ *
+ * Requests to this endpoint must use an access token and merchant_id associated with a business account.
+ */
+message ListLocationsRequest {
+  /** 
+   * The owining merchant_id to look up locations for
+   */
+  optional string merchant_id    = 1;
+}
+
+message ListLocationsResponse {
+  /** Detailed location information */
+  repeated data.User locations   = 1;
+}

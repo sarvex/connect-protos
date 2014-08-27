@@ -1,0 +1,46 @@
+package squareup.xp.v1.reporting;
+
+option java_package = "com.squareup.protos.xp.v1.reporting";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "fender/v1/field_options.proto";
+import "squareup/xp/v1/common.proto";
+import "squareup/xp/v1/data/bank_accounts.proto";
+
+/** 
+ * Provides non-confidential details for all of a merchant's associated bank accounts.
+ *
+ *
+ * This endpoint does not provide full bank account numbers, and there is no way to obtain a full bank account number with the Connect API.
+ *
+ *
+ * Required permissions: BANK\_ACCOUNTS\_READ
+ */
+message BankAccountsRequest {
+  /** The merchant id for the request */
+  optional string merchant_id = 1 [(fender.v1.fender_field).present = true];
+}
+
+/**
+ * The response for the bank accounts list request
+ * returns a list of bank accounts for a merchant
+ */
+message BankAccountsResponse {
+  /** A list of bank accounts owned by the requested merchant */
+  repeated data.BankAccount bank_accounts = 1;
+}
+
+/**
+ * Provides non-confidential details for a merchant's associated bank account.
+ * This endpoint does not provide full bank account numbers, and there is no way to obtain a full bank account number with the Connect API.
+ *
+ * Required permissions: BANK\_ACCOUNTS\_READ
+ */
+message BankAccountRequest {
+  /** The merchant id for the request */
+  optional string merchant_id     = 1 [(fender.v1.fender_field).present = true];
+  /** The bank account id that the merchant owns */
+  optional string bank_account_id = 2 [(fender.v1.fender_field).present = true];
+}
+

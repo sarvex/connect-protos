@@ -1,0 +1,15 @@
+package squareup.xp.v1.items.data;
+
+option java_package = "com.squareup.protos.xp.v1.items.data";
+option java_generic_services = true;
+option java_outer_classname = "ItemCategories";
+
+import "fender/v1/field_options.proto";
+
+/** Represents an item category. */
+message Category {
+  /** The category's unique ID. */
+  optional string id = 1;
+  /** The category's name. */
+  optional string name = 2 [(fender.v1.fender_field).max_length = 255 ];
+}

@@ -1,0 +1,16 @@
+package squareup.xp.v1.items.data;
+
+option java_package = "com.squareup.protos.xp.v1.items.data";
+option java_generic_services = true;
+option java_outer_classname = "ItemImages";
+
+import "fender/v1/field_options.proto";
+
+/** Represents an image of an item. */
+message ItemImage {
+  /** The image's unique ID. */
+  optional string id = 1;
+
+  /** The image's publicly accessible URL. */
+  optional string url = 2 [(fender.v1.fender_field).max_length = 1024];
+}

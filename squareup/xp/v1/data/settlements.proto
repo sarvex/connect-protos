@@ -1,0 +1,168 @@
+package squareup.xp.v1.data;
+
+option java_package = "com.squareup.protos.xp.v1.data";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "public/money.proto";
+import "squareup/xp/v1/data/bank_accounts.proto";
+import "fender/v1/field_options.proto";
+
+/** A settlement Summary */
+message SummarySettlement {
+  /** The settlement's unique identifier. */
+  optional string id = 1;
+
+  /** The settlement's current status. */
+  optional Settlement.Status status = 2;
+
+  /** The Square-issued unique identifier for the bank account associated with the settlement. */
+  optional string bank_account_id = 3;
+
+  /** The time when the settlement was submitted for deposit or withdrawal, in ISO 8601 format. */
+  optional string initiated_at = 4;
+
+  /**
+   *
+   * The amount of money involved in the settlement.
+   * A positive amount indicates a deposit, and a negative amount indicates a withdrawal.
+   * This amount is never zero.
+   */
+  optional public.Money total_money = 6;
+}
+
+/** Represents a single entry in a Settlement. */
+message LedgerEntry {
+
+  /**
+   * The type of a single entry within a settlement.
+   * The most common types are CHARGE and REFUND.
+   * All other types are uncommon or extremely rare, with some no longer appearing in new settlements.
+   *
+   * Types that begin with RETURNED represent reattempting a previously failed action.
+   */
+  enum Reason {
+    /** Crediting the merchant for a previously processed credit card payment. Most settlement entries have this type. */
+    CHARGE = 1;
+
+    /** Crediting the merchant for a previously processed payment where the buyer paid with an existing Square balance, such as a Square gift card. */
+    BALANCE_CHARGE = 2;
+
+    /**
+     * An adjustment related to the holding of funds from a previous payment, often related to a chargeback or a similar dispute.
+     *
+     * The amount of a HOLD_ADJUSTMENT settlement entry can be negative or positive, depending on whether a hold is being applied (negative) or a previously applied hold is being released (positive).
+     */
+    HOLD_ADJUSTMENT = 3;
+
+    /** Debiting the merchant for a refund applied to a previously processed payment. */
+    REFUND = 4;
+
+    /** A manual adjustment applied to the merchant's account by Square. Adjustments typically correct minor calculation errors. */
+    ADJUSTMENT = 5;
+
+    /** Crediting the merchant for a code redeemed from a Square Reader purchased from a retail location. */
+    REDEMPTION_CODE = 6;
+
+    /**
+     * Deprecated. Crediting the merchant for a payment in which Square covers part of the amount due.
+     * This value does not appear in new settlements.
+     */
+    INCENTED_PAYMENT = 7;
+
+    /** Unused */
+    PAYOUT = 8;
+
+    /** Reattempting a previously failed deposit. */
+    RETURNED_PAYOUT = 9;
+
+    /**
+     * Deprecated. Reattempting a previously failed deposit.
+     *
+     * This value does not appear in new settlements.
+     */
+    RETURNED_ACH_ENTRY = 10;
+
+    /**
+     * Deprecated.
+     * Debiting the merchant for a Square 275 payment.
+     * Square 275 is a discontinued subscription pricing model for larger Square merchants.
+     *
+     * This value does not appear in new settlements.
+     */
+    SQUARE_275 = 11;
+
+    /**
+     * Deprecated.
+     * Reattempting a previously failed Square 275 payment.
+     * Square 275 is a discontinued subscription pricing model for larger Square merchants.
+     *
+     * This value does not appear in new settlements.
+     */
+    RETURNED_SQUARE_275 = 12;
+
+    /** A Square Capital advance paid to the merchant. */
+    SQUARE_CAPITAL_ADVANCE = 13;
+    /** Debiting the merchant for payment toward a SQUARE_CAPITAL_ADVANCE. */
+    SQUARE_CAPITAL_PAYMENT = 14;
+    /** Reversing a portion of a previous SQUARE_CAPITAL_PAYMENT, typically in response to a merchant-issued refund. */
+    SQUARE_CAPITAL_REVERSED_PAYMENT = 15;
+    /** Crediting the merchant to offset processing fees, because the merchant has been granted an amount of free processing. */
+    FREE_PROCESSING = 16;
+
+    /** A type of settlement entry that does not match any other value. */
+    OTHER = 100;
+  }
+
+  /** The type of activity this entry represents. */
+  optional Reason type                  = 1;
+
+  /** The payment associated with the settlement entry, if any. */
+  optional string payment_id            = 2;
+
+  /** The total amount of money this entry contributes to the total settlement amount. */
+  optional public.Money amount_money = 3;
+  /**
+   * The amount of all Square fees associated with this settlement entry.
+   * This value is always negative or zero.
+   *
+   * This amount has already been applied to amount_money.
+   */
+  optional public.Money fee_money    = 4;
+}
+
+/** Represents a deposit or withdrawal made by Square to a merchant's bank account. */
+message Settlement {
+  /**
+   * The current status of a settlement. 
+   * Note that Square does not know when a settlement that's been SENT for processing completes, only whether it's FAILED.
+   */
+  enum Status {
+    /** The settlement was sent for processing. */
+    SENT   = 1;
+    /** The settlement failed. */
+    FAILED = 2;
+  }
+
+  /** The settlement's unique identifier. */
+  optional string id                = 1;
+  /** The settlement's current status. */
+  optional Status status            = 2;
+
+  /** The Square-issued unique identifier for the bank account associated with the settlement. */
+  optional string bank_account_id   = 3;
+
+  /** The time when the settlement was submitted for deposit or withdrawal, in ISO 8601 format. */
+  optional string initiated_at      = 4; // iso8601
+
+  /**
+   *
+   * The amount of money involved in the settlement.
+   * A positive amount indicates a deposit, and a negative amount indicates a withdrawal.
+   * This amount is never zero.
+   */
+  optional public.Money total_money = 6;
+
+  /** The entries included in this settlement. */
+  repeated LedgerEntry entries = 7;
+}

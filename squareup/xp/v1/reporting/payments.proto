@@ -1,0 +1,88 @@
+package squareup.xp.v1.reporting;
+
+option java_package = "com.squareup.protos.xp.v1.reporting";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "fender/v1/field_options.proto";
+import "squareup/xp/v1/common.proto";
+import "squareup/xp/v1/data/payments.proto";
+
+/**
+ * Provides summary information for all payments taken by a merchant or any of the merchant's mobile staff during a date range.
+ * Date ranges cannot exceed one year in length.
+ * See Date ranges in the Documentation at https://connect.squareup.com/docs/api for details of inclusive and exclusive dates.
+ *
+ * Required permissions: PAYMENTS\_READ
+ */
+message PaymentsRequest {
+  /** The Square merchant id */
+  optional string merchant_id    = 1;
+
+  /**
+   * Start of the time window to query for
+   * ISO 8601 format
+   *
+   * Default: Current time - 1 year
+   */
+  optional string begin_time     = 2; // iso8601
+
+  /**
+   * End of the time window to query for
+   * ISO 8601 format
+   *
+   * Note: Time windows must be less than 1 year
+   *
+   * Default: Current time
+   */
+  optional string end_time = 3; // iso8601
+
+  /**
+   * Set this to the value of the batch token
+   * And repeat the request to fetch the next page
+   */
+  optional string batch_token = 4;
+
+  /**
+   * Sort order as applied to payment time
+   */
+  optional SortOrder order = 5 [default = ASC];
+
+  /**
+   * The limit of total results for the query
+   */
+  optional uint32 limit = 6 [
+    default = 100,
+    (fender.v1.fender_field) = { max: 200, min: 1 }
+  ];
+}
+
+/**
+ * The response to a List payments request 
+ */
+message PaymentsResponse {
+  /**
+   * A collection of payments returned that meet the criteria of the request
+   */
+  repeated data.Payment payments = 1;
+
+  /**
+   * Present if there are more results on the server.
+   * Set this value into the original request 'batch_token' field and repeat the query
+   */
+  optional string  batch_token   = 3;
+}
+
+/**
+ * Provides comprehensive information for a single payment.
+ *
+ * Required permissions: PAYMENTS\_READ
+ */
+message PaymentRequest {
+  /** The Square merchant id */
+  optional string merchant_id = 1;
+
+  /** The Square payment id to fetch */
+  optional string payment_id  = 2;
+}
+

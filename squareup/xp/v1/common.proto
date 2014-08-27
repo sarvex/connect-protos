@@ -1,0 +1,128 @@
+package squareup.xp.v1;
+
+option java_package = "com.squareup.protos.xp.v1";
+option java_generic_services = true;
+
+import "public/international/country_code.proto";
+import "google/protobuf/descriptor.proto";
+
+enum Permission {
+  /** Read access to merchant's profile. */
+  MERCHANT_PROFILE_READ = 2;
+  /** Read access to merchant's settlement data. */
+  SETTLEMENTS_READ      = 3;
+  /** Read access to merchant's bank account data. */
+  BANK_ACCOUNTS_READ    = 4;
+  /** Read access to merchant's items catalog. */
+  ITEMS_READ            = 5;
+  /** Write access to merchant's items catalog. */
+  ITEMS_WRITE           = 6;
+  /** Read access to merchant's payment data. */
+  PAYMENTS_READ         = 7;
+  /** Create payments and refunds. */
+  PAYMENTS_WRITE        = 8;
+
+  /** Operate a Square Cash account */
+  SQUARE_CASH_READ      = 9;
+  SQUARE_CASH_WRITE     = 10;
+
+  /** Read access to merchant's shipping orders. */
+  ORDERS_READ           = 11;
+  /** Write access to merchant's shipping orders. */
+  ORDERS_WRITE          = 12;
+}
+
+/** Returned when there is an error */
+message Error {
+  /** A human readable message in English */
+  optional string message = 1;
+
+  /** A type of the error, '.' seperated for use in translations */
+  optional string type    = 2;
+
+  /** The request field name that caused the error, like "refund" or "refund.payment_id". */
+  optional string field   = 3;
+}
+
+/** 
+ * Represents a percentage rate 
+ * To calculate the rate:
+ *     base * 10^(exponent)
+ */
+message Rate {
+  /** The base number. i.e. 7 */
+  optional sint32 base     = 1;
+
+  /** The exponent to apply to the base. e.g. -3. */
+  optional sint32 exponent = 2;
+}
+
+/** Describes the sort order */
+enum SortOrder {
+  // Results in ascending order.
+  ASC = 1;
+
+  // Results in descending order.
+  DESC = 2;
+}
+
+/** A generic representation of a physical address. */
+message GlobalAddress {
+  /**
+   * The first line of the address.
+   *
+   * Fields that start with address_line provide the address's most specific details, like street number, street name, and building name.
+   * They do not provide less specific details like city, state/province, or country (these details are provided in other fields).
+   */
+  optional string address_line_1 = 1;
+  optional string address_line_2 = 2;
+  optional string address_line_3 = 3;
+  optional string address_line_4 = 4;
+  optional string address_line_5 = 5;
+
+  /** The city or town of the address. */
+  optional string locality = 6;
+  /** A civil region within the address's locality, if any. */
+  optional string sublocality = 7;
+
+  /** A civil region within the address's sublocality, if any. */
+  optional string sublocality_1 = 8;
+  /** A civil region within the address's sublocality_1, if any. */
+  optional string sublocality_2 = 9;
+  /** A civil region within the address's sublocality_2, if any. */
+  optional string sublocality_3 = 10;
+
+  /** A civil region within the address's sublocality_3, if any. */
+  optional string sublocality_4 = 11;
+  /** A civil region within the address's sublocality_4, if any. */
+  optional string sublocality_5 = 12;
+
+  /** A civil entity within the address's country. In the United States, this is the state. */
+  optional string administrative_district_level_1 = 13;
+
+  /** A civil entity within the address's administrative_district_level_1, if any. In the United States, this is the county. */
+  optional string administrative_district_level_2 = 14;
+  /** A civil entity within the address's administrative_district_level_2, if any. */
+  optional string administrative_district_level_3 = 15;
+  /** The address's postal code. */
+  optional string postal_code = 16;
+
+  /* The address's country, in ISO 3166-1-alpha-2 format. */
+  optional public.international.CountryCode country_code = 17;
+}
+
+/** Represents a phone number. */
+message Phone {
+  /**
+   * The phone number's international calling code. For US phone numbers, this value is +1.
+   */
+  optional string calling_code = 1;
+
+  /** The phone number. */
+  optional string number = 2;
+}
+
+/** Extend the MethodOptions object to include squareup.v1.permissions */
+extend google.protobuf.MethodOptions {
+  optional Permission permission = 22702;
+}

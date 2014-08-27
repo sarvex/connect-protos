@@ -1,0 +1,132 @@
+package squareup.xp.v1.items;
+
+option java_package = "com.squareup.protos.xp.v1.items";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "fender/v1/field_options.proto";
+import "squareup/xp/v1/items/data/fees.proto";
+import "squareup/xp/v1/common.proto";
+
+/**
+ * Creates a fee (tax).
+ *
+ * Required permissions: ITEMS\_WRITE
+ */
+message FeeCreateRequest {
+  /** 
+   * Your Square-issued ID, if you've obtained it from another endpoint.
+   *
+   * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
+   */
+  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+
+  /** The fee's name. */
+  optional string name = 2 [(fender.v1.fender_field) = { present: true, max_length: 255 }];
+
+  /**
+   * The rate of the fee, as a string representation of a decimal number.
+   * A value of 0.07 corresponds to a rate of 7%.
+   */
+  optional string rate = 3;
+
+  /**
+   * Whether the fee is calculated based on a payment's subtotal or total.
+   */
+  optional data.Fee.CalculationPhase calculation_phase = 6 [default = FEE_SUBTOTAL_PHASE];
+
+  /** 
+   * The type of adjustment the fee applies to a payment.
+   * Currently, this value is TAX for all fees.
+   */
+  optional data.Fee.AdjustmentType adjustment_type = 7 [default = TAX];
+
+  /**
+   * If true, the fee applies to custom amounts entered into Square Register that are not associated with a particular item.
+   */
+  optional bool applies_to_custom_amounts = 10 [default=true];
+
+  /**
+   * If true, the fee is applied to payments. If false, it isn't.
+   */
+  optional bool enabled = 11 [default = true];
+
+  /** Whether the fee is ADDITIVE or INCLUSIVE. */
+  optional data.Fee.InclusionType inclusion_type = 12 [default = ADDITIVE];
+
+  /** If specified, the fee will be created with this id otherwise Square will provide one */
+  optional string id = 13;
+}
+
+/**
+ * Lists all of a merchant's fees (taxes).
+ *
+ * Required permissions: ITEMS\_READ
+ */
+message FeeListRequest {
+  /**
+   * Your Square-issued ID, if you've obtained it from another endpoint.
+   *
+   * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
+   */
+  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+}
+
+message FeeListResponse {
+  /** An array of zero or more Fee objects. */
+  repeated data.Fee fees = 1;
+}
+
+/**
+ * Modifies the details of an existing fee (tax).
+ *
+ * Required permissions: ITEMS\_WRITE
+ */
+message FeeUpdateRequest {
+  /**
+   * Your Square-issued ID, if you've obtained it from another endpoint.
+   *
+   * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
+   */
+  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+
+  /** The fee to update */
+  optional data.Fee fee = 2 [(fender.v1.fender_field).present = true];
+}
+
+/**
+ * Deletes an existing fee (tax).
+ *
+ * Required permissions: ITEMS\_WRITE
+ */
+message FeeDeleteRequest {
+  /**
+   * Your Square-issued ID, if you've obtained it from another endpoint.
+   *
+   * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
+   */
+  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+
+  /** The ID of the fee to delete. */
+  optional string fee_id = 2 [(fender.v1.fender_field).present = true];
+}
+
+/**
+ * Used in the ApplyFee and RemoveFee endpoints
+ *
+ * Required permissions: ITEMS\_WRITE
+ */
+message ItemFeeMemberRequest {
+  /**
+   * Your Square-issued ID, if you've obtained it from another endpoint.
+   *
+   * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
+  */
+  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+
+  /** The ID of the item to remove the fee from. */
+  optional string item_id = 2 [(fender.v1.fender_field).present = true];
+
+  /** The ID of the fee to remove. */
+  optional string fee_id = 3 [(fender.v1.fender_field).present = true];
+}

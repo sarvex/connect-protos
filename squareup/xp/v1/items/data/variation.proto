@@ -1,0 +1,67 @@
+package squareup.xp.v1.items.data;
+
+option java_package = "com.squareup.protos.xp.v1.items.data";
+option java_generic_services = true;
+option java_outer_classname = "ItemsVariation";
+
+import "public/money.proto";
+import "fender/v1/field_options.proto";
+
+/** Represents a variation of an Item. Every item has at least one variation. */
+message Variation {
+
+  /** Indicates whether an item variation's price is fixed or entered at the time of sale. */
+  enum PricingType {
+    /** The item variation's price is fixed and cannot be edited at time of sale */
+    FIXED_PRICING = 0;
+    /** The item variation's price is entered at the time of sale. */
+    VARIABLE_PRICING = 1;
+  }
+
+  /** Indicates whether the item variation generates an alert when its inventory quantity goes below its inventory_alert_threshold. */
+  enum InventoryAlertType {
+    /** The variation does not display an alert. */
+    NONE = 1;
+    /** The variation generates an alert when its quantity is low. */
+    LOW_QUANTITY = 2;
+  };
+
+  /** The item variation's unique ID. */
+  optional string id = 1;
+
+  /** The item variation's name. */
+  optional string name = 2 [(fender.v1.fender_field).max = 255];
+
+  /** Indicates whether the item variation's price is fixed or determined at the time of sale. */
+  optional PricingType pricing_type = 3 [default = FIXED_PRICING];
+
+  /** The item variation's price, if any. */
+  optional public.Money price_money = 4; // sold for amount
+
+  /** The item variation's SKU, if any. */
+  optional string sku = 5 [(fender.v1.fender_field).max = 255];
+
+  /**
+   * Indicates the variation's list position when displayed in Square Register and the merchant dashboard.
+   * If more than one variation for the same item has the same ordinal value, those variations are displayed in alphabetical order.
+   *
+   * An item's variation with the lowest ordinal value is displayed first.
+   */
+  optional int32 ordinal = 6 [ default = 0, (fender.v1.fender_field).present = true];
+
+  /** The ID of the variation's associated item. */
+  optional string item_id = 7 [(fender.v1.fender_field).present = true];
+
+  /** If true, inventory tracking is active for the variation. */
+  optional bool track_inventory = 8 [default = false];
+
+  /** Indicates whether the item variation displays an alert when its inventory quantity is less than or equal to its inventory_alert_threshold. */
+  optional InventoryAlertType inventory_alert_type = 9 [default = NONE];
+  /** 
+   * If the inventory quantity for the variation is less than or equal to this value and inventory_alert_type is LOW_QUANTITY, the variation displays an alert in the merchant dashboard.
+   */
+  optional int64 inventory_alert_threshold = 10;
+
+  /** Arbitrary metadata associated with the variation. Cannot exceed 255 characters. */
+  optional string user_data = 11 [(fender.v1.fender_field).max_length = 255];
+}

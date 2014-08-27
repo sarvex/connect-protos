@@ -1,0 +1,221 @@
+package squareup.xp.v1.reporting;
+
+option java_package = "com.squareup.protos.xp.v1.reporting";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "fender/v1.proto";
+import "squareup/xp/v1/common.proto";
+import "squareup/xp/v1/reporting/users.proto";
+import "squareup/xp/v1/reporting/payments.proto";
+import "squareup/xp/v1/reporting/refunds.proto";
+import "squareup/xp/v1/reporting/settlements.proto";
+import "squareup/xp/v1/reporting/bank_accounts.proto";
+import "squareup/xp/v1/reporting/orders.proto";
+import "squareup/xp/v1/data/bank_accounts.proto";
+import "squareup/xp/v1/data/orders.proto";
+import "squareup/xp/v1/data/payments.proto";
+import "squareup/xp/v1/data/settlements.proto";
+import "squareup/xp/v1/data/users.proto";
+
+/** Squares reporting service */
+service XpReportingService {
+  option (fender.v1.fender_service) = {
+    address: "https://connect.squareup.com",
+    transport: HTTPS,
+    request_format: JSON
+  };
+
+  /**
+   * Provides a merchant's account information, such as business name and email address.
+   */
+  rpc ShowUser (UserRequest) returns (data.User) {
+    option (squareup.xp.v1.permission) = MERCHANT_PROFILE_READ;
+    option (fender.v1.fender_method) = {
+      http_path: "/v1/{+id}",
+      http_method: GET,
+      timeout_millis: 20000
+    };
+  }
+
+  /**
+   * Provides summary information for all payments taken by a merchant or any of the merchant's mobile staff during a date range.
+   *
+   * Date ranges cannot exceed one year in length. See Date ranges for details of inclusive and exclusive dates.
+   */
+  rpc ListPayments (PaymentsRequest) returns (PaymentsResponse) {
+    option (squareup.xp.v1.permission) = PAYMENTS_READ;
+    option (fender.v1.fender_method) = {
+      http_path: "/v1/{+merchant_id}/payments",
+      http_method: GET,
+      timeout_millis: 20000,
+      response_body_field: { name: "payments" }
+    };
+  }
+
+  /** Provides comprehensive information for a single payment. */
+  rpc ShowPayment (PaymentRequest) returns (data.Payment) {
+    option (squareup.xp.v1.permission) = PAYMENTS_READ;
+    option (fender.v1.fender_method) = {
+      http_path: "/v1/{+merchant_id}/payments/{+payment_id}",
+      http_method: GET,
+      timeout_millis: 20000,
+      response_body_field: { name: "payment" }
+    };
+  }
+
+  /** Provides the details for all refunds initiated by a merchant or any of the merchant's mobile staff during a date range.
+   *Date ranges cannot exceed one year in length. See Date ranges for details of inclusive and exclusive dates.
+   */
+  rpc ListRefunds (RefundsRequest) returns (RefundsResponse) {
+    option (squareup.xp.v1.permission) = PAYMENTS_READ;
+    option (fender.v1.fender_method) = {
+      http_path: "/v1/{+merchant_id}/refunds",
+      http_method: GET,
+      timeout_millis: 20000,
+      response_body_field: { name: "refunds" }
+    };
+  }
+
+  /** Create refund for a merchant */
+  /**
+   * Issues a refund for a previously processed payment.
+   * You must issue a refund within 60 days of the associated payment.
+   * See the article at https://squareup.com/help/article/5060 for more information on refund behavior.
+   *
+   * Issuing a refund for a card payment is not reversible.
+   * To develop against this endpoint, you can create fake cash payments in Square Register and refund them.
+   *
+   * You can issue either full refunds or partial refunds.
+   * If you issue a partial refund, you must specify the amount of money to refund.
+   */
+  rpc CreateRefund (RefundCreateRequest) returns (data.Refund) {
+    option (squareup.xp.v1.permission) = PAYMENTS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_path: "/v1/{+merchant_id}/refunds",
+      http_method: POST,
+      timeout_millis: 20000,
+      request_body_field: { name: "refund" }
+    };
+  }
+
+  /**
+   * Provides summary information for all deposits and withdrawals initiated by Square to a merchant's bank account during a date range.
+   * Date ranges cannot exceed one year in length.
+   * See Date ranges for details of inclusive and exclusive dates.
+   *
+   * Settlement objects returned by this endpoint do not include the entries field, which lists the transactions that contribute to the total of the settlement.
+   * To get a particular settlement's entries, use the Retrieve Settlement endpoint.
+   *
+   * Square initiates its regular deposits to merchant bank accounts on the schedule indicated on this page.
+   * A deposit initiated by Square on a given day is usually not provided by this endpoint before 10 p.m. PST the same day.
+   *
+   * Square does not know when an initiated settlement completes, only whether it has failed.
+   * A completed settlement is typically reflected in a merchant's bank account within three business days, but in exceptional cases it might take longer.
+   */
+  rpc ListSettlements (SettlementsRequest) returns (SummarySettlementsResponse) {
+    option (squareup.xp.v1.permission) = SETTLEMENTS_READ;
+    option (fender.v1.fender_method) = {
+      http_path: "/v1/{+merchant_id}/settlements",
+      http_method: GET,
+      timeout_millis: 20000,
+      response_body_field: { name: "settlements" }
+    };
+  }
+
+  /**
+   * Provides comprehensive information for a single settlement, including the entries that contribute to the settlement's total.
+   */
+  rpc ShowSettlement (SettlementRequest) returns (data.Settlement) {
+    option (squareup.xp.v1.permission) = SETTLEMENTS_READ;
+    option (fender.v1.fender_method) = {
+      http_path: "/v1/{+merchant_id}/settlements/{+settlement_id}",
+      http_method: GET,
+      timeout_millis: 20000
+    };
+  }
+
+  /**
+   * Provides non-confidential details for all of a merchant's associated bank accounts.
+   * This endpoint does not provide full bank account numbers, and there is no way to obtain a full bank account number with the Connect API.
+   */
+  rpc ListBankAccounts (BankAccountsRequest) returns (BankAccountsResponse) {
+    option (squareup.xp.v1.permission) = BANK_ACCOUNTS_READ;
+    option (fender.v1.fender_method) = {
+      http_path: "/v1/{+merchant_id}/bank-accounts",
+      http_method: GET,
+      timeout_millis: 20000,
+      response_body_field: { name: "bank_accounts" }
+    };
+  }
+
+  /**
+   * Provides non-confidential details for a merchant's associated bank account.
+   * This endpoint does not provide full bank account numbers, and there is no way to obtain a full bank account number with the Connect API.
+   */
+  rpc ShowBankAccount (BankAccountRequest) returns (data.BankAccount) {
+    option (squareup.xp.v1.permission) = BANK_ACCOUNTS_READ;
+    option (fender.v1.fender_method) = {
+      http_path: "/v1/{+merchant_id}/bank-accounts/{+bank_account_id}",
+      http_method: GET,
+      timeout_millis: 20000
+    };
+  }
+
+  /** List all orders for a merchant */
+  /**
+   * Provides summary information for a merchant's Square Market orders.
+   *
+   * Order objects returned by this endpoint do not include the order_history field, which lists prior activity related to the order.
+   * To get a particular order's history, use the Retrieve Order endpoint.
+   *
+   * Note that Order objects do not include a list of the items purchased.
+   * To get the items purchased in an order, provide the order's payment_id to the Retrieve Payment endpoint.
+   * The itemizations field of the returned Payment object lists the items purchased.
+   */
+  rpc ListOrders (ListOrdersRequest) returns (ListOrdersResponse) {
+    option (squareup.xp.v1.permission) = ORDERS_READ;
+    option (fender.v1.fender_method) = {
+      http_path: "/v1/{+merchant_id}/orders",
+      http_method: GET,
+      timeout_millis: 20000,
+      response_body_field: { name: "orders" }
+    };
+  }
+
+  /**
+   * Provides comprehensive information for a single Square Market order, including the order's history.
+   *
+   * The Order objects returned by this endpoint do not include a list of the items purchased.
+   * To get the items purchased, provide the payment_id of the order to the Retrieve Payment endpoint.
+   * The itemizations field of the returned Payment object lists the items purchased.
+   */
+  rpc ShowOrder (ShowOrderRequest) returns (data.Order) {
+    option (squareup.xp.v1.permission) = ORDERS_READ;
+    option (fender.v1.fender_method) = {
+      http_path: "/v1/{+merchant_id}/orders/{+order_id}",
+      http_method: GET,
+      timeout_millis: 20000
+    };
+  }
+
+  /**
+   * Updates the details of a Square Market order. Every update you perform on an order corresponds to one of three actions:
+   *
+   * * Completing the order (the order has been shipped or otherwise fulfilled)
+   * * Canceling the order
+   * * Refunding a previously completed order
+   *
+   * Note that to COMPLETE or CANCEL an order, its current state must be OPEN. To REFUND an order, its current state must be COMPLETED.
+   *
+   * If you REFUND an order, a refund is initiated for the order's associated payment.
+   */
+  rpc UpdateOrder (UpdateOrderRequest) returns (data.Order) {
+    option (squareup.xp.v1.permission) = ORDERS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_path: "/v1/{+merchant_id}/orders/{+order_id}",
+      http_method: PUT,
+      timeout_millis: 20000
+    };
+  }
+}

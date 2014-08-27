@@ -1,0 +1,613 @@
+package squareup.xp.v1.items;
+
+option java_package = "com.squareup.protos.xp.v1.items";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "fender/v1.proto";
+import "squareup/xp/v1/common.proto";
+import "squareup/xp/v1/items/items.proto";
+import "squareup/xp/v1/items/categories.proto";
+import "squareup/xp/v1/items/discounts.proto";
+import "squareup/xp/v1/items/item_modifiers.proto";
+import "squareup/xp/v1/items/pages.proto";
+import "squareup/xp/v1/items/variations.proto";
+import "squareup/xp/v1/items/fees.proto";
+import "squareup/xp/v1/items/data/item.proto";
+import "squareup/xp/v1/items/data/fees.proto";
+import "squareup/xp/v1/items/data/category.proto";
+import "squareup/xp/v1/items/data/variation.proto";
+import "squareup/xp/v1/items/data/item_modifiers.proto";
+import "squareup/xp/v1/items/data/page.proto";
+import "squareup/xp/v1/items/data/discount.proto";
+
+message StandardResponse {
+  optional bool success = 100 [ default = true ];
+}
+
+/**
+ * Manage your items libraries
+ */
+service XpItemsService {
+  option (fender.v1.fender_service) = {
+    address: "https://connect.squareup.com",
+    transport: HTTPS,
+    request_format: JSON
+  };
+
+  /**
+   * Creates an item and at least one variation for it.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc ItemCreate (ItemCreateRequest) returns (data.Item){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: POST,
+      http_path: "/v1/{+catalog_id}/items"
+    };
+  }
+
+  /**
+   * Provides summary information for all of a merchant's items.
+   *
+   * Required permissions: ITEMS\_READ
+   */
+  rpc ItemList (ItemListRequest) returns (ItemListResponse){
+    option (squareup.xp.v1.permission) = ITEMS_READ;
+    option (fender.v1.fender_method) = {
+      http_method: GET,
+      http_path: "/v1/{+catalog_id}/items",
+      response_body_field: { name: "items" }
+    };
+  }
+
+
+  /**
+   * Provides the details for a single item, including associated modifier lists and fees.
+   *
+   * Required permissions: ITEMS\_READ
+   */
+  rpc ItemShow (ItemShowRequest) returns (data.Item){
+    option (squareup.xp.v1.permission) = ITEMS_READ;
+    option (fender.v1.fender_method) = {
+      http_method: GET,
+      http_path: "/v1/{+catalog_id}/items/{+item_id}"
+    };
+  }
+
+
+  /**
+   * Modifies the core details of an existing item.
+   *
+   * If you want to modify an item's variations, use the Update Variation endpoint instead.
+   *
+   * If you want to add or remove a modifier list from an item, use the Apply Modifier List and Remove Modifier List endpoints instead.
+   *
+   * If you want to add or remove a fee from an item, use the Apply Fee and Remove Fee endpoints instead.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc ItemUpdate (ItemUpdateRequest) returns (data.Item){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: PUT,
+      http_path: "/v1/{+catalog_id}/items/{+id}",
+      response_body_field: { name: "item" }
+    };
+  }
+
+  /**
+   * Deletes an existing item and all item variations associated with it.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc ItemDelete (ItemDeleteRequest) returns (StandardResponse){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: DELETE,
+      http_path: "/v1/{+catalog_id}/items/{+item_id}"
+    };
+  }
+
+  /**
+   * Create or update a batch of Items
+   */
+  rpc ItemBatchUpdate (ItemBatchUpdateRequest) returns (StandardResponse){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: POST,
+      http_path: "/v1/{+catalog_id}/items/update",
+      request_body_field: { name: "updates" }
+    };
+  }
+
+  /**
+   * Delete a batch of things including items, categories, variations, modifier lists, modifier options, discounts, fees, pages and page cells
+   */
+  rpc ItemBatchDelete (ItemBatchDeleteRequest) returns (StandardResponse){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: POST,
+      http_path: "/v1/{+catalog_id}/items/delete",
+      request_body_field: { name: "item_ids" }
+    };
+  }
+
+  /**
+   * Creates an item variation for an existing item.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc VariationCreate (VariationCreateRequest) returns (data.Variation){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: POST,
+      http_path: "/v1/{+catalog_id}/items/{+variation.item_id}/variations",
+      request_body_field: { name: "variation" }
+    };
+  }
+
+  /**
+   * Modifies the details of an existing item variation.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc VariationUpdate (VariationUpdateRequest) returns (data.Variation){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: PUT,
+      http_path: "/v1/{+catalog_id}/items/{+variation.item_id}/variations/{+variation.id}",
+      request_body_field: { name: "variation" }
+    };
+  }
+
+  /**
+   * Deletes an existing item variation from an item.
+   *
+   * Every item must have at least one varation. This endpoint returns an error if you attempt to delete an item's only variation.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc VariationDelete (VariationDeleteRequest) returns (StandardResponse){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: DELETE,
+      http_path: "/v1/{+catalog_id}/items/{+item_id}/variations/{+variation_id}"
+    };
+  }
+
+  /**
+   * Associates a modifier list with an item, meaning modifier options from the list can be applied to the item.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc ApplyModifierList (MemberModifierListRequest) returns (data.Item){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: PUT,
+      http_path: "/v1/{+catalog_id}/items/{+item_id}/modifier_lists/{+item_modifier_list_id}"
+    };
+  }
+
+  /**
+   * Removes a modifier list association from an item, meaning modifier options from the list can no longer be applied to the item.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc RemoveModifierList (MemberModifierListRequest) returns (data.Item){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: DELETE,
+      http_path: "/v1/{+catalog_id}/items/{+item_id}/modifier_lists/{+modifier_list_id}"
+    };
+  }
+
+  /**
+   * Associates a fee with an item, meaning the fee is automatically applied to the item in Square Register.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc ApplyFee (ItemFeeMemberRequest) returns (data.Item){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: PUT,
+      http_path: "/v1/{+catalog_id}/items/{+item_id}/fees/{+fee_id}"
+    };
+  }
+
+  // Remove the association between the fee and the item.
+  // This does not delete either object but just clears the association
+  /**
+   * Removes a fee assocation from an item, meaning the fee is no longer automatically applied to the item in Square Register.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc RemoveFee (ItemFeeMemberRequest) returns (data.Item){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: DELETE,
+      http_path: "/v1/{+catalog_id}/items/{+item_id}/fees/{+fee_id}"
+    };
+  }
+
+  /**
+   * Creates an item modifier list and at least one modifier option for it.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc ModifierListCreate (ModifierListCreateRequest) returns (data.ItemModifierList){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: POST,
+      http_path: "/v1/{+catalog_id}/modifier-lists"
+    };
+  }
+
+  /**
+   * Lists all of a merchant's modifier lists.
+   *
+   * Required permissions: ITEMS\_READ
+   */
+  rpc ModifierListList (ModifierListListRequest) returns (ModifierListListResponse){
+    option (squareup.xp.v1.permission) = ITEMS_READ;
+    option (fender.v1.fender_method) = {
+      http_method: GET,
+      http_path: "/v1/{+catalog_id}/modifier-lists",
+      response_body_field: { name: "modifier_lists" }
+    };
+  }
+
+  /**
+   * Retreive a merchant's modifier list.
+   *
+   * Required permissions: ITEMS\_READ
+   */
+  rpc ModifierListShow (ModifierListShowRequest) returns (data.ItemModifierList){
+    option (squareup.xp.v1.permission) = ITEMS_READ;
+    option (fender.v1.fender_method) = {
+      http_method: GET,
+      http_path: "/v1/{+catalog_id}/modifier-lists/{+modifier_list_id}"
+    };
+  }
+
+  /**
+   * Modifies the details of an existing item modifier list.
+   *
+   * If you want to modify the details of a single modifier option, use the Update Modifier Option endpoint instead.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc ModifierListUpdate (ModifierListUpdateRequest) returns (data.ItemModifierList){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: PUT,
+      http_path: "/v1/{+catalog_id}/modifier-lists/{+modifier_list.id}",
+      request_body_field: { name: "modifier_list" }
+    };
+  }
+
+  /**
+   * Deletes an existing item modifier list and all modifier options associated with it.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc ModifierListDelete (ModifierListDeleteRequest) returns (StandardResponse){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: DELETE,
+      http_path: "/v1/{+catalog_id}/modifier-lists/{+modifier_list_id}"
+    };
+  }
+
+  /**
+   * Creates an item modifier option and adds it to a modifier list.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc ModifierOptionCreate (ModifierOptionCreateRequest) returns (data.ItemModifierOption){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: POST,
+      http_path: "/v1/{+catalog_id}/modifier-lists/{+modifier_list_id}/modifier-options"
+    };
+  }
+
+  /**
+   * Modifies the details of an existing item modifier option.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc ModifierOptionUpdate (ModifierOptionUpdateRequest) returns (data.ItemModifierOption){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: PUT,
+      http_path: "/v1/{+catalog_id}/modifier-lists/{+modifier_option.modifier_list_id}/modifier-options/{+modifier_option.id}",
+      request_body_field: { name: "modifier_option" }
+    };
+  }
+
+  /**
+   * Deletes an existing item modifier option from a modifier list.
+   *
+   * Every modifier list must have at least one option.
+   * This endpoint returns an error if you attempt to delete a modifier list's only option.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc ModifierOptionDelete (ModifierOptionDeleteRequest) returns (StandardResponse){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: DELETE,
+      http_path: "/v1/{+catalog_id}/modifier-lists/{+modifier_list_id}/modifier-options/{+modifier_option_id}"
+    };
+  }
+
+  /**
+   * Creates a fee (tax).
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc FeeCreate (FeeCreateRequest) returns (data.Fee){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: POST,
+      http_path: "/v1/{+catalog_id}/fees"
+    };
+  }
+
+  /**
+   * Lists all of a merchant's fees (taxes).
+   *
+   * Required permissions: ITEMS\_READ
+   */
+  rpc FeeList (FeeListRequest) returns (FeeListResponse){
+    option (squareup.xp.v1.permission) = ITEMS_READ;
+    option (fender.v1.fender_method) = {
+      http_method: GET,
+      http_path: "/v1/{+catalog_id}/fees",
+      response_body_field: { name: "fees" }
+    };
+  }
+
+  /** 
+   * Modifies the details of an existing fee (tax).
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc FeeUpdate (FeeUpdateRequest) returns (data.Fee){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: PUT,
+      http_path: "/v1/{+catalog_id}/fees{+fee.id}",
+      request_body_field: { name: "fee" }
+    };
+  }
+
+  /** 
+   * Deletes an existing fee (tax).
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc FeeDelete (FeeDeleteRequest) returns (StandardResponse){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: DELETE,
+      http_path: "/v1/{+catalog_id}/fees{+fee_id}"
+    };
+  }
+
+  /**
+   * Creates an item category.
+   *
+   * To add or remove an item from a category, use the Update Item endpoint.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc CategoryCreate (CategoryCreateRequest) returns (data.Category){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: POST,
+      http_path: "/v1/{+catalog_id}/categories"
+    };
+  }
+
+  /**
+   * Create or update a batch of categories
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc CategoryBatchUpdate (CategoryBatchUpdateRequest) returns (StandardResponse){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: POST,
+      http_path: "/v1/{+catalog_id}/categories/update",
+      request_body_field: { name: "categories" }
+    };
+  }
+
+  /**
+   * Lists all of a merchant's item categories.
+   *
+   * Required permissions: ITEMS\_READ
+   */
+  rpc CategoryList (CategoryListRequest) returns (CategoryListResponse){
+    option (squareup.xp.v1.permission) = ITEMS_READ;
+    option (fender.v1.fender_method) = {
+      http_method: GET,
+      http_path: "/v1/{+catalog_id}/categories",
+      response_body_field: { name: "categories" }
+    };
+  }
+
+  /**
+   * Modifies the details of an existing item category.
+   *
+   * To add or remove an item from a category, use the Update Item endpoint.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc CategoryUpdate (CategoryUpdateRequest) returns (data.Category){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: PUT,
+      http_path: "/v1/{+catalog_id}/categories/{+category.id}",
+      response_body_field: { name: "category" }
+    };
+  }
+
+  /**
+   * Deletes an existing item category.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc CategoryDelete (CategoryDeleteRequest) returns (StandardResponse){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: DELETE,
+      http_path: "/v1/{+catalog_id}/categories/{+category_id}"
+    };
+  }
+
+  /**
+   * Creates a Favorites page in Square Register.
+   *
+   * A merchant can have up to five pages, each of which has a page_index between 0 and 4, inclusive.
+   *
+   * After you create a page, you can set the values of its cells with the Update Cell endpoint.
+   * A page doesn't appear in Square Register unless at least one of its cells has an assigned value.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc PageCreate (PageCreateRequest) returns (data.Page) {
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: POST,
+      http_path: "/v1/{+catalog_id}/pages",
+      response_body_field: { name: "page" }
+    };
+  }
+
+  /**
+   * Lists all of a merchant's Favorites pages in Square Register.
+   *
+   * Required permissions: ITEMS\_READ
+   */
+  rpc PageList (PageListRequest) returns (PageListResponse) {
+    option (squareup.xp.v1.permission) = ITEMS_READ;
+    option (fender.v1.fender_method) = {
+      http_method: GET,
+      http_path: "/v1/{+catalog_id}/pages",
+      response_body_field: { name: "pages" }
+    };
+  }
+
+  /**
+   * Modifies the details of a Favorites page in Square Register.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc PageUpdate (PageUpdateRequest) returns (data.Page) {
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: PUT,
+      http_path: "/v1/{+catalog_id}/pages{+page.id}",
+      request_body_field: { name: "page" }
+    };
+  }
+
+  /**
+   * Deletes an existing Favorites page and all of its cells.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc PageDelete (PageDeleteRequest) returns (StandardResponse) {
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: DELETE,
+      http_path: "/v1/{+catalog_id}/pages{+page_id}"
+    };
+  }
+
+  /**
+   * Modifies a cell of a Favorites page in Square Register.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc PageSetCell (PageSetCellRequest) returns (data.PageCell) {
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: PUT,
+      http_path: "/v1/{+catalog_id}/pages{+page_cell.page_id}/cells",
+      request_body_field: { name: "page_cell" }
+    };
+  }
+
+  /**
+   * Deletes a cell from a Favorites page in Square Register.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc PageClearCell (PageClearCellRequest) returns (StandardResponse) {
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: DELETE,
+      http_path: "/v1/{+catalog_id}/pages{+page_id}/cells"
+    };
+  }
+
+  /** 
+   * Creates a discount.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc DiscountCreate (DiscountCreateRequest) returns (data.Discount){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: POST,
+      http_path: "/v1/{+catalog_id}/discounts",
+      response_body_field: { name: "discount" }
+    };
+  }
+
+  /**
+   * Lists all of a merchant's discounts.
+   *
+   * Required permissions: ITEMS\_READ
+   */
+  rpc DiscountList (DiscountListRequest) returns (DiscountListResponse){
+    option (squareup.xp.v1.permission) = ITEMS_READ;
+    option (fender.v1.fender_method) = {
+      http_method: GET,
+      http_path: "/v1/{+catalog_id}/discounts",
+      response_body_field: { name: "discounts" }
+    };
+  }
+
+  /**
+   * Modifies the details of an existing discount.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc DiscountUpdate (DiscountUpdateRequest) returns (data.Discount){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: PUT,
+      http_path: "/v1/{+catalog_id}/discounts/{+discount.id}",
+      request_body_field: { name: "discount" }
+    };
+  }
+
+  /**
+   * Deletes an existing discount.
+   *
+   * Required permissions: ITEMS\_WRITE
+   */
+  rpc DiscountDelete (DiscountDeleteRequest) returns (StandardResponse){
+    option (squareup.xp.v1.permission) = ITEMS_WRITE;
+    option (fender.v1.fender_method) = {
+      http_method: DELETE,
+      http_path: "/v1/{+catalog_id}/discounts/{+discount_id}"
+    };
+  }
+}

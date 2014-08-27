@@ -1,0 +1,124 @@
+package squareup.xp.v1.reporting;
+
+option java_package = "com.squareup.protos.xp.v1.reporting";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "fender/v1/field_options.proto";
+import "squareup/xp/v1/common.proto";
+import "squareup/xp/v1/data/orders.proto";
+
+/**
+ * Provides summary information for a merchant's Square Market orders.
+ *
+ * Order objects returned by this endpoint do not include the order_history field, which lists prior activity related to the order. To get a particular order's history, use the Retrieve Order endpoint.
+ *
+ * Note that Order objects do not include a list of the items purchased.
+ * To get the items purchased in an order, provide the order's payment_id to the Retrieve Payment endpoint.
+ * The itemizations field of the returned Payment object lists the items purchased.
+ *
+ * Required permissions: ORDERS\_READ
+ */
+message ListOrdersRequest {
+  /** The merchant_id to scope the request to */
+  optional string merchant_id = 1;
+
+  /** 
+   * A batch token to specify pagination.
+   * This is passed wholesale through to bazaar.
+   * When there are more orders available the response will contain a batch token.
+   */
+  optional string batch_token = 2;
+
+  /**
+   * Specify the sort order. 
+   * The order is based on the created_at timestamp of the orders
+   */ 
+  optional SortOrder order = 3;
+
+  /** 
+   * Optionally specify a limit on the number of orders to return
+   * If there are more orders, a batch_token will be supplied in the response
+   */
+  optional uint32 limit = 4 [default = 100];
+}
+
+/**
+ * The response containing a list of orders for a given merchant.
+ */
+message ListOrdersResponse {
+  /** The orders for the merchant */
+  repeated data.Order orders = 1;
+
+  /**
+   * An optional batch token. 
+   * The batch token represents a pagination token and it's presence signifies that there are more orders available
+   */
+  optional string batch_token = 2;
+}
+
+/**
+ * Fetches a specific order for a merchant
+ */
+/**
+ * Provides comprehensive information for a single Square Market order, including the order's history.
+ *
+ * The Order objects returned by this endpoint do not include a list of the items purchased.
+ * To get the items purchased, provide the payment_id of the order to the Retrieve Payment endpoint.
+ * The itemizations field of the returned Payment object lists the items purchased.
+ *
+ * Required permissions: ORDERS\_READ
+ */
+message ShowOrderRequest {
+  /** The merchant_id to scope the search for the order to */
+  optional string merchant_id = 1 [(fender.v1.fender_field).present = true];
+
+  /** The order_id to search for */
+  optional string order_id = 2 [(fender.v1.fender_field).present = true];
+}
+
+/**
+ * Updates the details of a Square Market order. Every update you perform on an order corresponds to one of three actions:
+ *
+ * - Completing the order (the order has been shipped or otherwise fulfilled)
+ * - Canceling the order
+ * - Refunding a previously completed order
+ *
+ * Note that to COMPLETE or CANCEL an order, its current state must be OPEN. To REFUND an order, its current state must be COMPLETED.
+ *
+ * If you REFUND an order, a refund is initiated for the order's associated payment.
+ * Required permissions: ORDERS\_WRITE
+ */
+message UpdateOrderRequest {
+
+  /** The action to undertake on the order */
+  enum UpdateAction {
+    /** Transition an order to completed. */
+    COMPLETE  = 0;
+    /** Transition an order to cancelled. */
+    CANCEL    = 1;
+    /** Transition an order to refunded. */
+    REFUND    = 2;
+  }
+
+  /** The merchant_id who owns the order */
+  optional string merchant_id = 1 [(fender.v1.fender_field).present = true];
+
+  /** The order to update */
+  optional string order_id = 2 [(fender.v1.fender_field).present = true];
+
+  /** The action you want to take on the order. */
+  optional UpdateAction action = 3 [(fender.v1.fender_field).present = true];
+
+  /** A client supplied string that can be used to specify tracking information for the order */
+  optional string shipped_tracking_number = 4;
+
+  /** A client supplied string added on completion */
+  optional string completed_note = 5;
+
+  /** A client supplied string added on refund */
+  optional string refunded_note = 6;
+
+  /** A client supplied string added on cancellation */
+  optional string canceled_note = 7;
+}

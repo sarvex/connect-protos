@@ -1,0 +1,79 @@
+package squareup.xp.v1.items;
+
+option java_package = "com.squareup.protos.xp.v1.items";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "fender/v1/field_options.proto";
+import "squareup/xp/v1/common.proto";
+import "squareup/xp/v1/items/data/discount.proto";
+
+/** 
+ * Creates a discount.
+ *
+ * Required permissions: ITEMS\_WRITE
+ */
+message DiscountCreateRequest {
+  /**
+   * Your Square-issued ID, if you've obtained it from another endpoint.
+   *
+   * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
+   */
+  optional string catalog_id = 1;
+
+  /** The discount to create */
+  optional data.Discount discount = 2;
+}
+
+/**
+ * Lists all of a merchant's discounts.
+ *
+ * Required permissions: ITEMS\_READ
+ */
+message DiscountListRequest {
+  /**
+   * Your Square-issued ID, if you've obtained it from another endpoint.
+   *
+   * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
+   */
+  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+}
+
+message DiscountListResponse {
+  /** An array of zero or more Discount objects. */
+  repeated data.Discount discounts = 1;
+}
+
+/**
+ * Modifies the details of an existing discount.
+ *
+ * Required permissions: ITEMS\_WRITE
+ */
+message DiscountUpdateRequest {
+  /**
+   * Your Square-issued ID, if you've obtained it from another endpoint.
+   *
+   * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
+   */
+  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+
+  /** The discount to update */
+  optional data.Discount discount = 2 [(fender.v1.fender_field).present = true];
+}
+
+/**
+ * Deletes an existing discount.
+ *
+ * Required permissions: ITEMS\_WRITE
+ */
+message DiscountDeleteRequest {
+  /**
+   * Your Square-issued ID, if you've obtained it from another endpoint.
+   *
+   * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
+   */
+  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+
+  /** The ID of the discount to delete. */
+  optional string discount_id = 2;
+}

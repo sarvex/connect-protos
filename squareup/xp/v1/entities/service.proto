@@ -1,0 +1,62 @@
+package squareup.xp.v1.entities;
+
+option java_package = "com.squareup.protos.xp.v1.entities";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "fender/v1.proto";
+import "squareup/xp/v1/common.proto";
+import "squareup/xp/v1/entities/locations.proto";
+import "squareup/xp/v1/entities/businesses.proto";
+import "squareup/xp/v1/data/users.proto";
+
+/**
+ * Typically, a Square merchant has a single account that they use to process all of their payments and manage all of their items.
+ * However, if a merchant's business has multiple physical locations, the merchant might have a different Square account for each location.
+ * Sometimes in this case, the merchant has a special business account that helps them manage all of their single-location accounts.
+ *
+ * A merchant can authorize your application with their business account just as they would with a single-location account.
+ * If they do, your application can do the following (assuming you requested the necessary permission scope during authorization):
+
+ * Make calls to Connect API endpoints acting as any of the business account's individual locations
+ * Make calls to List endpoints (such as List Payments or List Items) that return aggregated results from all of the business account's individual locations
+ * Important: Business accounts do not have their own payments, items, or other entities.
+ * If you attempt to create an item and provide the merchant_id of a business account, the request will fail with an error.
+ */
+service XpEntitiesService {
+  option (fender.v1.fender_service) = {
+    address: "https://connect.squareup.com",
+    transport: HTTPS,
+    request_format: JSON
+  };
+
+  /**
+   * Provides details for a business account's locations. See Multi-Location Overview for more information.
+   *
+   * Requests to this endpoint must use an access token and merchant_id associated with a business account.
+   */
+  rpc ListLocations (ListLocationsRequest) returns (ListLocationsResponse) {
+    option (squareup.xp.v1.permission) = MERCHANT_PROFILE_READ;
+    option (fender.v1.fender_method) = {
+      http_path: "/v1/{+merchant_id}/locations",
+      http_method: GET,
+      timeout_millis: 20000,
+      response_body_field: { name: "locations" }
+    };
+  }
+
+  /**
+   * Provides details for the business account that manages a single-location account, if any.
+   * See Multi-Location Overview for more information.
+   *
+   * Requests to this endpoint must use a merchant_id associated with a single-location account.
+   */
+  rpc ShowBusiness (ShowBusinessRequest) returns (data.User) {
+    option (squareup.xp.v1.permission) = MERCHANT_PROFILE_READ;
+    option (fender.v1.fender_method) = {
+      http_path: "/v1/{+merchant_id}/business",
+      http_method: GET,
+      timeout_millis: 20000
+    };
+  }
+}

@@ -1,0 +1,59 @@
+package squareup.xp.v1.items.data;
+
+option java_package = "com.squareup.protos.xp.v1.items.data";
+option java_generic_services = true;
+option java_outer_classname = "ItemDiscounts";
+
+import "fender/v1/field_options.proto";
+import "public/money.proto";
+
+/**
+ * Represents a discount that can be applied to a payment.
+ * A discount can be either a percentage or a flat amount.
+ * You can determine a particular discount's type by checking which of rate or amount_money is included in the object.
+ */
+message Discount {
+
+  /** Indicates whether a discount's value is fixed or entered at the time of sale. */
+  enum Type {
+    /** The discount has a fixed value. */
+    FIXED = 0;
+    /** The discount is percentage-based and entered at the time of sale. */
+    VARIABLE_PERCENTAGE = 1;
+    /** The discount is amount-based and entered at the time of sale. */
+    VARIABLE_AMOUNT = 2;
+  }
+
+  /** The discount's unique ID. */
+  optional string id = 1 [(fender.v1.fender_field).present = true];
+
+  /** The discount's name. */
+  optional string name = 2 [(fender.v1.fender_field).max_length = 255];
+
+  /** The color of the discount's display label in Square Register, if not the default color. */
+  optional string color = 3 [ default = "9da2a6", (fender.v1.fender_field).max_length = 255];
+
+  /**
+   * The rate of the discount, as a string representation of a decimal number.
+   * A value of 0.07 corresponds to a rate of 7%.
+   * This rate is 0 if discount_type is VARIABLE_PERCENTAGE.
+   */
+  optional string rate = 4;
+
+  /**
+   * The amount of the discount. This amount is 0 if discount_type is VARIABLE_AMOUNT.
+   *
+   * This field is not included for rate-based discounts.
+   */
+  optional public.Money amount_money = 5;
+
+
+  /**
+   * Indicates whether a mobile staff member needs to enter their PIN to apply the discount to a payment.
+   */
+  optional bool pin_required = 6 [default = false];
+
+  /** Indicates whether the discount is a FIXED value or entered at the time of sale. */
+  optional Type discount_type = 7 [default = FIXED];
+}
+

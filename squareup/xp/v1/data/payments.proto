@@ -1,0 +1,349 @@
+package squareup.xp.v1.data;
+
+option java_package = "com.squareup.protos.xp.v1.data";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "public/international/currency.proto";
+import "public/money.proto";
+import "squareup/xp/v1/data/bank_accounts.proto";
+import "squareup/xp/v1/data/users.proto";
+import "squareup/xp/v1/common.proto";
+import "squareup/xp/v1/items/data/fees.proto";
+
+/** Represents a refund initiated by a Square merchant. */
+message Refund {
+
+  /** A refund's type. */
+  enum Type {
+    /** A full refund. */
+    FULL = 1;
+    /** A partial refund. */
+    PARTIAL = 2;
+  }
+
+  /** The type of refund */
+  optional Type   type         = 1;
+  /** The time when the merchant initiated the refund for Square to process, in ISO 8601 format. */
+  optional string created_at   = 2; // iso8601
+  /** The time when Square processed the refund on behalf of the merchant, in ISO 8601 format. */
+  optional string processed_at = 3; // iso8601
+  /** The merchant-specified reason for the refund. */
+  optional string reason       = 4;
+  /** The amount of money refunded to the customer.  This is always negative. */
+  optional public.Money refunded_money = 5;
+
+  /** The Square-issued ID of the payment the refund is applied to. */
+  optional string payment_id = 6;
+
+  /**
+   * An optional key to ensure idempotence if you issue the same PARTIAL refund request more than once.
+   *
+   * If you attempt to issue a partial refund and you aren't sure whether your request succeeded, you can safely repeat your request with the same request_idempotence_key.
+   * If you want to issue another partial refund for the same payment, you must use a request_idempotence_key that is unique among refunds you have issued for the payment.
+   */
+  optional string request_idempotence_key = 7;
+
+  /** The merchant id */
+  optional string merchant_id = 8;
+}
+
+/** Represents a single tax applied to a payment. */
+message TaxSummary {
+  /** The merchant-defined name of the tax. */
+  optional string name = 1;
+
+  /** The rate of the tax, as a string representation of a decimal number. A value of 0.07 corresponds to a rate of 7%. */
+  optional string rate = 2;
+
+  /** Whether the tax is an ADDITIVE tax or an INCLUSIVE tax. */
+  optional items.data.Fee.InclusionType inclusion_type = 3;
+
+  /** The amount of money that this tax adds to the payment. */
+  optional public.Money applied_money = 4;
+
+  /** The ID of the tax, if available. Taxes applied in older versions of Square Register might not have an ID. */
+  optional string fee_id = 6;
+}
+
+/**
+ * Represents a discount that can be applied to a payment. 
+ * A discount can be either a percentage or a flat amount.
+ * You can determine a particular discount's type by checking which of rate or amount_money is included in the object.
+ */
+message PaymentDiscount {
+  /** The discount's name. */
+  optional string name = 1;
+
+  /** The amount of money that this discount adds to the payment (note that this value is always negative or zero). */
+  optional public.Money applied_money = 2;
+
+  /**
+   * The ID of the applied discount, if available.
+   * Discounts applied in older versions of Square Register might not have an ID.
+   */
+  optional string discount_id = 6;
+}
+
+/** Represents a modifier option applied to an itemization in a payment. */
+message PaymentModifier {
+
+  /** The modifier option's name. */
+  optional string name = 1;
+
+  /** The amount of money that this modifier option adds to the payment. */
+  optional public.Money applied_money = 2;
+
+  /**
+   * The ID of the applied modifier option, if available.
+   * Modifier options applied in older versions of Square Register might not have an ID.
+   */
+  optional string modifier_option_id = 6;
+}
+
+/** Represents details of an item purchased in a payment. */
+message PaymentItemDetail {
+
+  /** The name of the item's merchant-defined category, if any. */
+  optional string category_name = 1;
+
+  /** The item's merchant-defined SKU, if any. */
+  optional string sku = 2;
+
+  /** The unique ID of the item purchased, if any. */
+  optional string item_id = 4;
+
+  /** The unique ID of the item variation purchased, if any. */
+  optional string item_variation_id = 5;
+}
+
+/** Represents a device running Square Register. */
+message Device {
+  /** The device's Square-issued ID. */
+  optional string id = 1;
+  /** The device's merchant-specified name. */
+  optional string name = 2;
+}
+
+
+/** The method with which a form of tender was entered. */
+enum EntryMethod {
+  /** The payment information was scanned via barcode. */
+  SCANNED            = 1;
+  /** The payment card was swiped through a card reader. */
+  SWIPED             = 2;
+  /** The payment information was entered manually. */
+  MANUAL             = 3;
+  /** The payment was made via Square Wallet. */
+  SQUARE_WALLET      = 4;
+  /** The payment was made via Square Cash. */
+  SQUARE_CASH        = 5;
+  /** The payment was made via a web form. */
+  WEB_FORM           = 6;
+  /** The payment information was obtained by a method that does not match any other value. */
+  OTHER = 50;
+}
+
+/** The brand of a credit card. */
+enum CardBrand {
+  /** An unknown brand. */
+  UNKNOWN = 1;
+  /** A Visa credit card. */
+  VISA = 2;
+  /** A MasterCard credit card. */
+  MASTER_CARD = 3;
+  /** An American Express credit card. */
+  AMERICAN_EXPRESS = 4;
+  /** A Discover credit card. */
+  DISCOVER = 5;
+  /** A Diners Club credit card. */
+  DISCOVER_DINERS = 6;
+  /** A JCB credit card. */
+  JCB = 7;
+}
+
+
+/** Represents a form and amount of tender provided for a payment. */
+message Tender {
+  /** The type of tender used in a payment. */
+  enum Type {
+    CREDIT_CARD      = 1;
+    SQUARE_WALLET    = 2;
+    SQUARE_GIFT_CARD = 3;
+    CASH             = 4;
+
+    OTHER   = 100;
+    NO_SALE = 102;
+    UNKNOWN = 103;
+  }
+
+  /** The type of tender. */
+  optional Type type = 1;
+
+  /**
+   * Notes entered by the merchant about the tender at the time of payment, if any.
+   * Typically only present for tender with the type OTHER.
+   */
+  optional string payment_note = 2;
+
+  /** A human-readable description of the tender. */
+  optional string name = 3;
+
+  /** The total amount of money provided in this form of tender. */
+  optional public.Money total_money       = 20;
+  /** The amount of total_money applied to the payment. */
+  optional public.Money tendered_money    = 21;
+  /** The amount of total_money returned to the buyer as change. */
+  optional public.Money change_back_money = 22;
+
+  /**
+   * The brand of credit card provided.
+   *
+   * Only present if the tender's type is CREDIT_CARD.
+   */
+  optional CardBrand card_brand = 23;
+
+  /**
+   * The last four digits of the credit card provided.
+   *
+   * Only present if the tender's type is CREDIT_CARD.
+   */
+  optional string pan_suffix = 24;
+
+  /**
+   * The method with which the tender was entered.
+   */
+  optional EntryMethod entry_method = 25;
+}
+
+/** Represents an item purchased in a payment. */
+message PaymentItemization {
+
+  /** The item's name. */
+  optional string name = 1;
+
+  /** The quantity of the item purchased. This can be a decimal value. */
+  optional double quantity = 2; // 0.8f format
+
+  /** Notes entered by the merchant about the item at the time of payment, if any. */
+  optional string notes = 3;
+
+  /** The name of the item variation purchased. */
+  optional string item_variation_name = 4;
+
+  /** Details of the item, including its unique identifier and the identifier of the item variation purchased. */
+  optional PaymentItemDetail item_detail = 5;
+
+  /** The total cost of the item, including all taxes and discounts. */
+  optional public.Money total_money           = 10;
+  /** The cost of a single unit of this item. */
+  optional public.Money single_quantity_money = 11;
+  /** The total cost of the itemization, not including taxes or discounts. */
+  optional public.Money gross_sales_money     = 12;
+  /** The total of all discounts applied to the itemization. */
+  optional public.Money discount_money        = 13;
+  /** The total of all refunds applied to the itemization. */
+  optional public.Money refunded_money        = 14;
+  /** The net money from the sale */
+  optional public.Money net_sales_money       = 15;
+  /** All taxes applied to this itemization. */
+  repeated TaxSummary taxes = 20;
+  /** All discounts applied to this itemization. */
+  repeated PaymentDiscount discounts = 21;
+  /** All modifier options applied to this itemization. */
+  repeated PaymentModifier modifiers = 22;
+}
+
+/** Represents a payment taken by a Square merchant. */
+message Payment {
+  /** The payment's unique identifier. */
+  optional string id = 1;
+
+  /** The unique identifier of the merchant that took the payment. */
+  optional string merchant_id = 2; // Maps to a user token
+
+  /**
+   * The unique identifier of the Square account that took the payment.
+   * This value can differ from merchant_id if the merchant has mobile staff.
+   */
+  optional string creator_id  = 3;
+
+  /** The time when the payment was created, in ISO 8601 format. */
+  optional string created_at  = 4; // iso8601
+
+  optional string description = 5;
+
+  /** The device that took the payment. */
+  optional Device device = 6;
+
+  /**
+   * The URL of the payment's detail page in the merchant dashboard.
+   * The merchant must be signed in to the merchant dashboard to view this page.
+   */
+  optional string payment_url = 7;
+
+  /** The URL of the receipt for the payment. */
+  optional string receipt_url = 8;
+
+  /** The sum of all inclusive taxes associated with the payment. */
+  optional public.Money inclusive_tax_money = 20;
+
+  /** The sum of all additive taxes associated with the payment. */
+  optional public.Money additive_tax_money = 21;
+
+  /**
+   * The total of all taxes applied to the payment.
+   * This is always the sum of inclusive_tax_money and additive_tax_money.
+   */
+  optional public.Money tax_money = 22;
+
+  /** The total of all tips applied to the payment. */
+  optional public.Money tip_money = 23;
+
+  /** 
+   * The total of all discounts applied to the payment. 
+   * This value is always 0 or negative.
+   */
+  optional public.Money discount_money = 24;
+
+  /** The total amount of money collected from the buyer for the payment. */
+  optional public.Money total_collected_money = 25;
+
+  /** 
+   * The total of all processing fees collected by Square for the payment.
+   *
+   * This value is always 0 or negative.
+   */
+  optional public.Money processing_fee_money  = 26;
+
+  /**
+   * The amount to be deposited into the merchant's bank account for the payment.
+   *
+   * This is always the sum of total_collected_money and processing_fee_money (note that processing_fee_money is always negative or 0).
+   */
+  optional public.Money net_total_money       = 27;
+
+  /** The total of all refunds applied to the payment. */
+  optional public.Money refunded_money        = 28;
+
+  /**
+   * The rounding adjustment for countries that don't have the smallest unit of currency
+   * e.g. no pennies
+   */
+  optional public.Money swedish_rounding_money = 30;
+
+  /** All of the inclusive taxes associated with the payment. */
+  repeated TaxSummary inclusive_tax = 40;
+
+  /** All of the additive taxes associated with the payment. */
+  repeated TaxSummary additive_tax  = 41;
+
+  /** The form(s) of tender provided by the buyer for the payment. */
+  repeated Tender tender  = 50;
+
+  /** All of the refunds applied to the payment. */
+  repeated Refund refunds = 60;
+
+  /** The items purchased in the payment. */
+  repeated PaymentItemization itemizations = 70;
+}

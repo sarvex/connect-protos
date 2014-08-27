@@ -1,0 +1,173 @@
+package squareup.xp.v1.data;
+
+option java_package = "com.squareup.protos.xp.v1.data";
+option java_generic_services = true;
+option java_multiple_files = true;
+
+import "squareup/xp/v1/common.proto";
+import "public/international/country_code.proto";
+
+/** Represents a Square merchant account. */
+message User {
+
+  /** Indicates whether a merchant account is a single-location account or a business account. */
+  enum AccountType {
+    /** The type of merchant is a business which has 0 or more locations */
+    BUSINESS = 1;
+    /** The type of merchant is a location which belongs to a business */
+    LOCATION = 2;
+  }
+
+  /**
+   * Indicates a merchant's type of business.
+   *
+   * Business type values are applicable to all countries supported by Square unless otherwise indicated.
+   */
+  enum BusinessType {
+    ACCOUNTING                                              = 1;
+    APPAREL_AND_ACCESSORY_SHOPS                             = 2;
+    ART_DEALERS_GALLERIES                                   = 3;
+    ART_DESIGN_AND_PHOTOGRAPHY                              = 4;
+
+    /** Not applicable to Japanese businesses. */
+    BAR_CLUB_LOUNGE                                         = 5;
+    BEAUTY_AND_BARBER_SHOPS                                 = 6;
+
+    /** Applicable to Japanese businesses only. */
+    BOOK_STORES                                             = 7;
+
+    /** Not applicable to Japanese businesses. */
+    BUSINESS_SERVICES                                       = 8;
+
+    CATERING                                                = 9;
+    /** Not applicable to Japanese businesses. */
+    CHARITABLE_SOCIAL_SERVICE_ORGANIZATIONS                 = 10;
+
+    CHARITIBLE_ORGS                                         = 11;
+    /** Not applicable to Japanese businesses. */
+    CLEANING_SERVICES                                       = 12;
+
+    COMPUTER_EQUIPMENT_SOFTWARE_MAINTENANCE_REPAIR_SERVICES = 13;
+    CONSULTANT                                              = 14;
+    CONTRACTORS                                             = 15;
+
+    /** Applicable to Japanese businesses only. */
+    DELIVERY_SERVICES                                       = 16;
+    DENTISTRY                                               = 17;
+    EDUCATION                                               = 18;
+    FOOD_STORES_CONVENIENCE_STORES_AND_SPECIALTY_MARKETS    = 19;
+    FOOD_TRUCK_CART                                         = 20;
+
+    /** Applicable to Japanese businesses only. */
+    FURNITURE_HOME_AND_OFFICE_EQUIPMENT                     = 21;
+
+    /** Not applicable to Japanese businesses. */
+    FURNITURE_HOME_GOODS                                    = 22;
+
+    /** Applicable to Japanese businesses only. */
+    HOTELS_AND_LODGING                                      = 23;
+
+    /** Not applicable to Japanese businesses. */
+    INDIVIDUAL_USE                                          = 24;
+
+    /** Not applicable to Japanese businesses. */
+    JEWELRY_AND_WATCHES                                     = 25;
+    LANDSCAPING_AND_HORTICULTURAL_SERVICES                  = 26;
+
+    /** Applicable to Japanese businesses only. */
+    LANGUAGE_SCHOOLS                                        = 27;
+    LEGAL_SERVICES                                          = 28;
+
+    /** Not applicable to Japanese businesses. */
+    MEDICAL_PRACTITIONERS                                   = 29;
+    MEDICAL_SERVICES_AND_HEALTH_PRACTITIONERS               = 30;
+    MEMBERSHIP_ORGANIZATIONS                                = 31;
+    MUSIC_AND_ENTERTAINMENT                                 = 32;
+    OUTDOOR_MARKETS                                         = 33;
+    PERSONAL_SERVICES                                       = 34;
+    POLITICAL_ORGANIZATIONS                                 = 35;
+    PROFESSIONAL_SERVICES                                   = 36;
+    REAL_ESTATE                                             = 37;
+    RECREATION_SERVICES                                     = 38;
+    REPAIR_SHOPS_AND_RELATED_SERVICES                       = 39;
+    RESTAURANTS                                             = 40;
+    RETAIL_SHOPS                                            = 41;
+
+    /** Not applicable to Japanese businesses. */
+    SCHOOLS_AND_EDUCATIONAL_SERVICES                        = 42;
+
+    /** Not applicable to Japanese businesses. */
+    SPORTING_GOODS                                          = 43;
+    TAXICABS_AND_LIMOUSINES                                 = 44;
+
+    /** Applicable to Japanese businesses only. */
+    TICKET_SALES                                            = 45;
+
+    /** Not applicable to Japanese businesses. */
+    TOURISM                                                 = 46;
+
+    /** Applicable to Japanese businesses only. */
+    TRAVEL_TOURISM                                          = 47;
+    VETERINARY_SERVICES                                     = 48;
+    WEB_DEV_DESIGN                                          = 49;
+
+    OTHER                                                   = 1000;
+  }
+
+  /** The merchant account's unique identifier. */
+  optional string id    = 1;
+
+  /** The name associated with the merchant account. */
+  optional string name  = 2;
+  /** The email address associated with the merchant account. */
+  optional string email = 3;
+
+  /** The country associated with the merchant account, in ISO 3166-1-alpha-2 format. */
+  optional public.international.CountryCode country_code = 4;
+
+  /** The language associated with the merchant account, in BCP 47 format. */
+  optional string language_code = 5; // BCP 47
+
+  /** The name of the merchant's business. */
+  optional string business_name = 6;
+
+  /** The address of the merchant's business. */
+  optional GlobalAddress business_address = 7;
+
+  /** The phone number of the merchant's business. **/
+  optional Phone business_phone = 8;
+
+  /** The type of business operated by the merchant. */
+  optional BusinessType business_type = 9;
+
+  /** Shipping address. May not be present */
+  optional GlobalAddress shipping_address = 16;
+
+  /** 
+   * Indicates whether the merchant account corresponds to a single-location account (LOCATION) or a business account (BUSINESS).
+   * This value is almost always LOCATION.
+   * See Multi-Location Overview for more information.
+   */
+  optional AccountType account_type = 17;
+
+  /**
+   * Additional information for a single-location account specified by its associated business account, if it has one.
+   *
+   * Never included in Merchant objects with the account_type BUSINESS.
+   */
+  optional LocationDetails location_details = 18;
+
+  /** The URL of the merchant's Square Market page. */
+  optional string market_url = 19;
+}
+
+/**
+ * Represents additional details for a single-location account as specified by its parent business.
+ */
+message LocationDetails {
+  /**
+   * The nickname assigned to the single-location account by the parent business.
+   * This value appears in the parent business's multi-location dashboard.
+   */
+  optional string nickname = 1;
+}
