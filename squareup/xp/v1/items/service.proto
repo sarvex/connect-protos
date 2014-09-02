@@ -20,11 +20,6 @@ import "squareup/xp/v1/items/data/variation.proto";
 import "squareup/xp/v1/items/data/item_modifiers.proto";
 import "squareup/xp/v1/items/data/page.proto";
 import "squareup/xp/v1/items/data/discount.proto";
-
-message StandardResponse {
-  optional bool success = 100 [ default = true ];
-}
-
 /**
  * Manage your items libraries
  */
@@ -32,7 +27,8 @@ service XpItemsService {
   option (fender.v1.fender_service) = {
     address: "https://connect.squareup.com",
     transport: HTTPS,
-    request_format: JSON
+    request_format: JSON,
+    cors_enabled: true
   };
 
   /**

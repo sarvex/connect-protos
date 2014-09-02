@@ -3,8 +3,21 @@ package squareup.xp.v1;
 option java_package = "com.squareup.protos.xp.v1";
 option java_generic_services = true;
 
+import "fender/v1/field_options.proto";
 import "public/international/country_code.proto";
 import "google/protobuf/descriptor.proto";
+
+message TestMessage {
+  repeated Permission permissions = 1;
+  repeated string strings = 2 [(fender.v1.fender_field) = {format: 'blah'}];
+  repeated double doubles = 3;
+  repeated uint64 uints = 4;
+  optional string thinger = 5 [(fender.v1.fender_field) = { present: true, format: "foobar" }];
+}
+
+message StandardResponse {
+  optional bool success = 100 [ default = true ];
+}
 
 enum Permission {
   /** Read access to merchant's profile. */
@@ -30,6 +43,13 @@ enum Permission {
   ORDERS_READ           = 11;
   /** Write access to merchant's shipping orders. */
   ORDERS_WRITE          = 12;
+}
+
+enum HttpRequestMethod {
+  GET = 1;
+  POST = 2;
+  PUT = 3;
+  DELETE = 4;
 }
 
 /** Returned when there is an error */

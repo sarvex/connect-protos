@@ -25,7 +25,7 @@ message PageCreateRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The page's name, if any. */
   optional string name = 2 [(fender.v1.fender_field).max = 255];
@@ -45,7 +45,7 @@ message PageListRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 }
 
 message PageListResponse {
@@ -63,7 +63,7 @@ message PageUpdateRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The page to update */
   optional data.Page page = 2 [(fender.v1.fender_field).present = true];
@@ -80,7 +80,7 @@ message PageDeleteRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The ID of the page to delete. */
   optional string page_id = 2 [(fender.v1.fender_field).present = true];
@@ -97,7 +97,7 @@ message PageSetCellRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The cell to set */
   optional data.PageCell page_cell = 2 [(fender.v1.fender_field).present = true];
@@ -114,7 +114,7 @@ message PageClearCellRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The ID of the page the cell belongs to. */
   optional string page_id = 2 [(fender.v1.fender_field).present = true];

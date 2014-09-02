@@ -20,7 +20,7 @@ message ModifierListCreateRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /**
    * The modifier list's name.
@@ -47,7 +47,7 @@ message ModifierListListRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 }
 
 message ModifierListListResponse {
@@ -65,7 +65,7 @@ message ModifierListShowRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The Modifier List id */
   optional string modifier_list_id = 2 [(fender.v1.fender_field).present = true];
@@ -84,7 +84,7 @@ message ModifierListUpdateRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
 
   /**
@@ -104,7 +104,7 @@ message ModifierListDeleteRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The ID of the modifier list to delete. */
   optional string modifier_list_id = 2 [(fender.v1.fender_field).present = true];
@@ -121,7 +121,7 @@ message MemberModifierListRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The ID of the item to remove the modifier list from. */
   optional string item_id = 2 [(fender.v1.fender_field).present = true];
@@ -141,7 +141,7 @@ message ModifierOptionCreateRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true ];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true ];
 
   /** The modifier option's price. */
   optional public.Money price_money = 2 [(fender.v1.fender_field).present = true];
@@ -168,7 +168,7 @@ message ModifierOptionUpdateRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
 
   /** The modifier option to update */
@@ -189,7 +189,7 @@ message ModifierOptionDeleteRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The ID of the modifier option to delete. */
   optional string modifier_option_id = 2 [(fender.v1.fender_field).present = true];

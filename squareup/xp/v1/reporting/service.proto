@@ -23,7 +23,8 @@ service XpReportingService {
   option (fender.v1.fender_service) = {
     address: "https://connect.squareup.com",
     transport: HTTPS,
-    request_format: JSON
+    request_format: JSON,
+    cors_enabled: true
   };
 
   /**
@@ -59,8 +60,7 @@ service XpReportingService {
     option (fender.v1.fender_method) = {
       http_path: "/v1/{+merchant_id}/payments/{+payment_id}",
       http_method: GET,
-      timeout_millis: 20000,
-      response_body_field: { name: "payment" }
+      timeout_millis: 20000
     };
   }
 

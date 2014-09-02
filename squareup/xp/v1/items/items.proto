@@ -20,7 +20,7 @@ message ItemCreateRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1;
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** 
    * The color of the item's display label in Square Register.
@@ -79,7 +79,7 @@ message ItemListRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1;
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 }
 
 message ItemListResponse {
@@ -102,7 +102,7 @@ message ItemShowRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The item's ID. */
   optional string item_id = 2 [(fender.v1.fender_field).present = true];
@@ -125,7 +125,7 @@ message ItemUpdateRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1;
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
 
   /** The color of the item's display label in Square Register. */
@@ -166,7 +166,7 @@ message ItemDeleteRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1;
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The ID of the item to delete. */
   repeated string item_id = 2;
@@ -183,7 +183,7 @@ message ItemBatchUpdateRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
   /**
    * The items to create or update
    */
@@ -201,7 +201,7 @@ message ItemBatchDeleteRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /**
    * The ids of the things you want to delete.

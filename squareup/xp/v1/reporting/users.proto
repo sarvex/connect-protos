@@ -4,6 +4,7 @@ option java_package = "com.squareup.protos.xp.v1.reporting";
 option java_generic_services = true;
 option java_multiple_files = true;
 
+import "fender/v1/field_options.proto";
 import "squareup/xp/v1/common.proto";
 import "squareup/xp/v1/data/users.proto";
 
@@ -15,6 +16,6 @@ import "squareup/xp/v1/data/users.proto";
  */
 message UserRequest {
   /** The Square merchant id or 'me' */
-  optional string id = 1;
+  optional string id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 }
 

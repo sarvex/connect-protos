@@ -17,7 +17,7 @@ import "squareup/xp/v1/data/payments.proto";
  */
 message PaymentsRequest {
   /** The Square merchant id */
-  optional string merchant_id    = 1;
+  optional string merchant_id    = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /**
    * Start of the time window to query for
@@ -80,9 +80,9 @@ message PaymentsResponse {
  */
 message PaymentRequest {
   /** The Square merchant id */
-  optional string merchant_id = 1;
+  optional string merchant_id = 1 [default = "me", (fender.v1.fender_field).present = true];
 
   /** The Square payment id to fetch */
-  optional string payment_id  = 2;
+  optional string payment_id  = 2 [(fender.v1.fender_field).present = true];
 }
 

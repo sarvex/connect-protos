@@ -17,7 +17,7 @@ import "squareup/xp/v1/data/payments.proto";
  */
 message RefundsRequest {
   /** The Square merchant_id */
-  optional string merchant_id    = 1;
+  optional string merchant_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /**
    * Start of the time window to query for
@@ -90,6 +90,6 @@ message RefundCreateRequest {
   optional data.Refund refund = 1;
 
   /** The merchant id for the merchant owning the refund */
-  optional string merchant_id = 2;
+  optional string merchant_id = 2 [ default = "me", (fender.v1.fender_field).present = true];
 }
 

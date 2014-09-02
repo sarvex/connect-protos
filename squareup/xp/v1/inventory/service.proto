@@ -61,7 +61,7 @@ message Inventory {
  */
 message ListInventoryRequest {
   /** The Square merchant id */
-  optional string merchant_id = 1 [(fender.v1.fender_field).present = true];
+  optional string merchant_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 }
 
 message ListInventoryResponse {
@@ -76,7 +76,7 @@ message ListInventoryResponse {
  */
 message CreateInventoryAdjustmentRequest {
   /** The Square merchant id */
-  optional string merchant_id = 1 [(fender.v1.fender_field).present = true];
+  optional string merchant_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
 
   /** The Square variation id to make the adjustment to */
@@ -101,7 +101,8 @@ service XpInventoryService {
   option (fender.v1.fender_service) = {
     address: "https://connect.squareup.com",
     transport: HTTPS,
-    request_format: JSON
+    request_format: JSON,
+    cors_enabled: true
   };
 
   /**

@@ -19,7 +19,7 @@ import "squareup/xp/v1/data/bank_accounts.proto";
  */
 message BankAccountsRequest {
   /** The merchant id for the request */
-  optional string merchant_id = 1 [(fender.v1.fender_field).present = true];
+  optional string merchant_id = 1 [default = "me", (fender.v1.fender_field).present = true];
 }
 
 /**
@@ -39,7 +39,7 @@ message BankAccountsResponse {
  */
 message BankAccountRequest {
   /** The merchant id for the request */
-  optional string merchant_id     = 1 [(fender.v1.fender_field).present = true];
+  optional string merchant_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
   /** The bank account id that the merchant owns */
   optional string bank_account_id = 2 [(fender.v1.fender_field).present = true];
 }

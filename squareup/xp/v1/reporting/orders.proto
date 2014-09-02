@@ -21,7 +21,7 @@ import "squareup/xp/v1/data/orders.proto";
  */
 message ListOrdersRequest {
   /** The merchant_id to scope the request to */
-  optional string merchant_id = 1;
+  optional string merchant_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** 
    * A batch token to specify pagination.
@@ -71,7 +71,7 @@ message ListOrdersResponse {
  */
 message ShowOrderRequest {
   /** The merchant_id to scope the search for the order to */
-  optional string merchant_id = 1 [(fender.v1.fender_field).present = true];
+  optional string merchant_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The order_id to search for */
   optional string order_id = 2 [(fender.v1.fender_field).present = true];
@@ -102,7 +102,7 @@ message UpdateOrderRequest {
   }
 
   /** The merchant_id who owns the order */
-  optional string merchant_id = 1 [(fender.v1.fender_field).present = true];
+  optional string merchant_id = 1 [default = "me", (fender.v1.fender_field).present = true];
 
   /** The order to update */
   optional string order_id = 2 [(fender.v1.fender_field).present = true];

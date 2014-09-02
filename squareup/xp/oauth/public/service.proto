@@ -1,0 +1,271 @@
+package squareup.xp.oauth.public;
+
+import "fender/v1/field_options.proto";
+import "fender/v1.proto";
+import "squareup/xp/v1/common.proto";
+
+enum ResponseType {
+  /**
+   * If you specify code, you must then exchange the authorization code for an access token with the Obtain Token endpoint.
+   * Primarily used on the server.
+   */
+  code = 0;
+
+  /**
+   * If you specify token the redirect url will contain the access token in the anchor part (after the #)
+   * Primarily used in the browser.
+   */
+  token = 1;
+}
+
+/**
+ * This endpoint serves the Permission Request form that merchants use to grant your application access to their data.
+ * If your application can't render a webpage, you should access this endpoint from the merchant's web browser instead of your application.
+  */
+message OauthAuthorizeRequest {
+  /** Your application's ID, available from the Apps page. */
+  optional string client_id = 1 [(fender.v1.fender_field).present = true];
+
+  /**
+   * The URL that the Square OAuth server calls back to after authorization succeeds or fails.
+   *
+   * The beginning of the URL must match the Redirect URL you specified on the Apps page. For example, if the Redirect URL on the Apps page is https://squareup.com/foo, the value of this parameter must start with that substring. It can include additional path elements after /foo.
+   *
+   * Default value: The Redirect URL specified on the Apps page.
+   *
+   * *NOTE* When using from the browser, the redirect URL needs to be in the same security zone, and needs to use HTTPS
+   */
+  optional string redirect_uri = 2;
+
+  /**
+   * Indicates whether you want to receive an authorization code (code) or an access token (token) from Square's response to your application's Redirect URL.
+   *
+   * If you specify code, you must then exchange the authorization code for an access token with the Obtain Token endpoint.
+   *
+   * Default value: code
+   */
+  optional ResponseType response_type = 3 [default = code, (fender.v1.fender_field).present = true];
+
+
+  /**
+   * A space-separated list of the permissions your application is requesting. Valid permissions are listed in OAuth.Permission.
+   *
+   * Default value: MERCHANT_PROFILE_READ PAYMENTS_READ SETTLEMENTS_READ BANK_ACCOUNTS_READ
+   */
+  optional string scope = 4 [
+    default = "MERCHANT_PROFILE_READ PAYMENTS_READ SETTLEMENTS_READ BANK_ACCOUNTS_READ",
+    (fender.v1.fender_field).present = true
+  ];
+
+  /**
+   * The locale to present the Permission Request form in.
+   * Provide this value only if you have ascertained the merchant's preferred locale.
+   * If you don't provide this value, Square detects the locale automatically.
+   *
+   * Currently supported values are en-US, en-CA, es-US, fr-CA, and ja-JP.
+   */
+  optional string locale = 5;
+
+  /**
+   * If you provide this value, it's passed along to your application's Redirect URL after the Permission Request form is submitted.
+   * Include this parameter and verify its value to help protect against cross-site request forgery.
+   */
+  optional string state = 6;
+
+  /**
+   * If false, the Square merchant must log in to view the Permission Request form, even if they already have a valid user session.
+   *
+   */
+  optional bool session = 7;
+
+}
+
+message OauthAuthorizeResponse {
+  /**
+   * The same value you provided for response_type
+   */
+  optional ResponseType response_type = 1;
+
+  /**
+   * An authorization code you can exchange for an access token with the Obtain Token endpoint.
+   *
+   * This parameter is present only if you specify code as the value for response_type.
+   */
+  optional string code = 2;
+
+  /**
+   * Your application's access token.
+   * You provide this token in a header with every request to Connect API endpoints.
+   * See [Request and response headers](https://connect.squareup.com/docs/api#headers) for the format of this header.
+   *
+   * This parameter is present only if you specify token as the value for response_type.
+   */
+  optional string access_token = 3;
+
+  /** The same value you specified for state in your original request, if any. */
+  optional string state = 5;
+
+  /** The type of error that occurred. If the merchant denied your application access, this value is access_denied. */
+  optional string error = 6;
+
+  /** The reason the error occurred. If the merchant denied your application access, this value is user_denied. */
+  optional string error_description = 7;
+}
+
+
+
+  /**
+   * If you obtained a temporary authorization code from a request to the Authorize endpoint, you exchange that code for an access token with a request to this endpoint.
+   */
+message OauthGetTokenRequest {
+  /** Your application's ID, available from the Apps page. */
+  optional string client_id = 1 [(fender.v1.fender_field).present = true];
+
+  /** Your application's secret, available from the Apps page. */
+  optional string client_secret = 2 [(fender.v1.fender_field).present = true];
+
+  /** The authorization code to exchange. */
+  optional string code = 3 [(fender.v1.fender_field).present = true];
+
+  /** 
+   * If you provided a redirect_uri in your corresponding request to the Authorize endpoint, you must provide the exact same redirect_uri here.
+   */
+  optional string redirect_uri = 4;
+}
+
+message OauthGetTokenResponse {
+  /**
+   * Your application's access token.
+   * You provide this token in a header with every request to Connect API endpoints.
+   * See Request and response headers for the format of this header.
+   */
+  optional string access_token = 1;
+
+  /** This value is always bearer. */
+  optional string token_type = 2 [ default = "bearer" ];
+
+  /** The date when access_token expires, in ISO 8601 format. */
+  optional string expires_at = 3;
+
+  /** The ID of the authorizing merchant. */
+  optional string merchant_id = 4;
+}
+
+/**
+ * OAuth access tokens besides your application's personal access token expire after 30 days.
+ * Use this endpoint to renew an expired token. 
+ * If you provide a token that isn't expired, this endpoint does not extend its lifetime.
+ *
+ * Important: The Authorization header you provide to this endpoint must have the following format:
+ *
+ * Authorization: Client APPLICATION_SECRET
+ *
+ * Replace APPLICATION_SECRET with your application's secret, available from the Apps page.
+ */
+message OauthRenewTokenRequest {
+
+  /** Your application's ID, available from the Apps page. */
+  optional string client_id = 1 [(fender.v1.fender_field).present = true];
+
+  /** The token you want to renew. */
+  optional string access_token = 2 [(fender.v1.fender_field).present = true];
+}
+
+/**
+ * If a merchant has granted your application access to their data with the Authorize endpoint, you can use this endpoint to revoke their access token.
+ *
+ * If a merchant has more than one access token for your application, this endpoint revokes all of them, regardless of which token you specify.
+ *
+ * Important: Unlike with other endpoints, the Authorization header you provide to this endpoint must have the following format:
+ *
+ * Authorization: Client APPLICATION_SECRET
+ *
+ * Replace APPLICATION_SECRET with your application's secret, available from the Apps page.
+ */
+message OauthRevokeTokenRequest {
+  /** Your application's ID, available from the Apps page. */
+  optional string client_id = 1 [(fender.v1.fender_field).present = true];
+
+  /** The access token of the merchant whose token you want to revoke.
+   * Do not provide a value for merchant_id if you provide this parameter.
+   */
+  optional string access_token = 2;
+
+  /**
+   * The ID of the merchant whose token you want to revoke.
+   *
+   * Do not provide a value for access_token if you provide this parameter.
+   */
+  optional string merchant_id = 3;
+}
+
+/**
+ * OAuth API Overview
+ * [See online documentation](https://connect.squareup.com/docs/api#oauth-overview)
+ */
+service OauthService {
+  option (fender.v1.fender_service) = {
+    address: "https://connect.squareup.com",
+    transport: HTTPS,
+    request_format: JSON
+  };
+
+  /**
+   * This endpoint serves the Permission Request form that merchants use to grant your application access to their data.
+   * If your application can't render a webpage, you should access this endpoint from the merchant's web browser instead of your application.
+   */
+  rpc Authorize (OauthAuthorizeRequest) returns (OauthAuthorizeResponse) {
+    option (fender.v1.fender_method) = {
+      http_path: "/oauth2/authorize",
+      http_method: GET
+    };
+  }
+
+
+  /**
+   * If you obtained a temporary authorization code from a request to the Authorize endpoint, you exchange that code for an access token with a request to this endpoint.
+   */
+  rpc ObtainToken (OauthGetTokenRequest) returns (OauthGetTokenResponse) {
+    option (fender.v1.fender_method) = {
+      http_path: "/oauth2/token",
+      http_method: POST
+    };
+  }
+
+  /**
+   * OAuth access tokens besides your application's personal access token expire after 30 days.
+   * Use this endpoint to renew an expired token. 
+   * If you provide a token that isn't expired, this endpoint does not extend its lifetime.
+   *
+   * Important: The Authorization header you provide to this endpoint must have the following format:
+   *
+   * Authorization: Client APPLICATION_SECRET
+   *
+   * Replace APPLICATION_SECRET with your application's secret, available from the Apps page.
+   */
+  rpc RenewToken (OauthRenewTokenRequest) returns (OauthGetTokenResponse) {
+    option (fender.v1.fender_method) = {
+      http_path: "/oauth2/clients/{+client_id}/access-token/renew",
+      http_method: POST
+    };
+  }
+
+  /**
+   * If a merchant has granted your application access to their data with the Authorize endpoint, you can use this endpoint to revoke their access token.
+   *
+   * If a merchant has more than one access token for your application, this endpoint revokes all of them, regardless of which token you specify.
+   *
+   * Important: Unlike with other endpoints, the Authorization header you provide to this endpoint must have the following format:
+   *
+   * Authorization: Client APPLICATION_SECRET
+   *
+   * Replace APPLICATION_SECRET with your application's secret, available from the Apps page.
+   */
+  rpc RevokeToken (OauthRevokeTokenRequest) returns (xp.v1.StandardResponse) {
+    option (fender.v1.fender_method) = {
+      http_path: "/oauth2/revoke",
+      http_method: POST
+    };
+  }
+}
+

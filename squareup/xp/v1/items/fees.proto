@@ -19,7 +19,7 @@ message FeeCreateRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The fee's name. */
   optional string name = 2 [(fender.v1.fender_field) = { present: true, max_length: 255 }];
@@ -69,7 +69,7 @@ message FeeListRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 }
 
 message FeeListResponse {
@@ -88,7 +88,7 @@ message FeeUpdateRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The fee to update */
   optional data.Fee fee = 2 [(fender.v1.fender_field).present = true];
@@ -105,7 +105,7 @@ message FeeDeleteRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The ID of the fee to delete. */
   optional string fee_id = 2 [(fender.v1.fender_field).present = true];
@@ -122,7 +122,7 @@ message ItemFeeMemberRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
   */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The ID of the item to remove the fee from. */
   optional string item_id = 2 [(fender.v1.fender_field).present = true];

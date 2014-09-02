@@ -19,7 +19,7 @@ message DiscountCreateRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1;
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The discount to create */
   optional data.Discount discount = 2;
@@ -36,7 +36,7 @@ message DiscountListRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 }
 
 message DiscountListResponse {
@@ -55,7 +55,7 @@ message DiscountUpdateRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The discount to update */
   optional data.Discount discount = 2 [(fender.v1.fender_field).present = true];
@@ -72,7 +72,7 @@ message DiscountDeleteRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The ID of the discount to delete. */
   optional string discount_id = 2;

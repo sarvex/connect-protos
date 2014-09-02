@@ -19,7 +19,7 @@ message VariationCreateRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The variation to create */
   optional data.Variation variation = 3 [(fender.v1.fender_field).present = true];
@@ -36,7 +36,7 @@ message VariationUpdateRequest {
    *
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    */
-  optional string catalog_id = 1 [(fender.v1.fender_field).present = true];
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The variation to update */
   optional data.Variation variation = 2;
@@ -56,11 +56,11 @@ message VariationDeleteRequest {
    * If you haven't, specify me to automatically determine your merchant ID based on your request's access token.
    *
    */
-  optional string catalog_id = 1;
+  optional string catalog_id = 1 [ default = "me", (fender.v1.fender_field).present = true];
 
   /** The ID of the item the variation applies to. */
-  optional string item_id = 2;
+  optional string item_id = 2 [(fender.v1.fender_field).present = true];
 
   /** The ID of the variation to delete. */
-  optional string variation_id = 3;
+  optional string variation_id = 3 [(fender.v1.fender_field).present = true];
 }
