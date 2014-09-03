@@ -99,6 +99,8 @@ message Order {
   /** The total of all discounts applied to the order. */
   optional public.Money total_discount_money = 22;
 
+  optional string promo_code = 23 [deprecated=true];
+
   /**
    * This is the address the buyer should deposit BTC into in order to finish their BTC orders.
    */

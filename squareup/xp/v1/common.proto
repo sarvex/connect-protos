@@ -17,6 +17,7 @@ message TestMessage {
 
 message StandardResponse {
   optional bool success = 100 [ default = true ];
+  optional Error error = 101;
 }
 
 enum Permission {

@@ -83,7 +83,7 @@ message SettlementsResponse {
 
 message SummarySettlementsResponse {
   /** A lite version of the settlement data */
-  repeated data.Settlement settlements = 1;
+  repeated data.SummarySettlement settlements = 1;
 
   /**
    * Present if there are more results on the server.

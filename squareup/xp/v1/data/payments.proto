@@ -189,6 +189,8 @@ message Tender {
   /** A human-readable description of the tender. */
   optional string name = 3;
 
+  optional string cardholder_name = 4;
+
   /** The total amount of money provided in this form of tender. */
   optional public.Money total_money       = 20;
   /** The amount of total_money applied to the payment. */
@@ -214,6 +216,7 @@ message Tender {
    * The method with which the tender was entered.
    */
   optional EntryMethod entry_method = 25;
+
 }
 
 /** Represents an item purchased in a payment. */
